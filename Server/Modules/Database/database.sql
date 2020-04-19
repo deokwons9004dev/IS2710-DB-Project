@@ -79,6 +79,12 @@ CREATE TABLE CommonResolutions (
 -- .description: The detailed text the customer complains about.
 -- .opentime: When the customer first posted the case.
 -- .closetime: When the employee last closed this case.
+-- .closereason: Why the case was closed (ex. 'SOLVED', 'UNRESOLVED', 'DUPLICATE', 'COMRES')
+-- .closereason.SOLVED: Issue was successfully resolved through chating with customer.
+-- .closereason.UNRESOLVED: Issue was not solved despite effort to solve with customer.
+-- .closereason.DUPLICATE: Issue with exact/similar content was uploaded.
+-- .closereason.COMRES: Issue can be resolved by following the guide of one of our common resolutions.
+-- Case is regarded as open as long as closetime and closereason are both NULL.
 CREATE TABLE Cases (
 	CAS_ID      int      NOT NULL AUTO_INCREMENT,
 
@@ -86,17 +92,18 @@ CREATE TABLE Cases (
 	description text     NOT NULL,
 	opentime    datetime NOT NULL,
 	closetime   datetime,
+	closereason varchar(50),
 
 	PUR_ID      int      NOT NULL,
-	CUS_ID      int      NOT NULL,
-	PD_ID       int      NOT NULL,
+	-- CUS_ID      int      NOT NULL,
+	-- PD_ID       int      NOT NULL,
 	EMP_ID      int,
 	COMRES_ID   int,
 	PRIMARY KEY (CAS_ID),
 	FOREIGN KEY (PUR_ID) REFERENCES Purchases(PUR_ID),
-	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
+	-- FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
+	-- FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
 	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
-	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
 	FOREIGN KEY (COMRES_ID) REFERENCES CommonResolutions(COMRES_ID)
 );
 

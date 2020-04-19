@@ -5,16 +5,18 @@ In the abscess of a final exam, the homework and projects will be weighed in mor
 * ___Note: Since we are working with a free-tier version of Coud9, our actaul public URL will be something ugly like so:___
 ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.ide.preview.markdown/client/markdown.html?host=https://us-east-2.console.aws.amazon.com&id=markdown1___
 * For the sake of simplicity, we will assume that our public URL will just be http://project.com for now.
+* If user only enters http://project.com, then user will be directed to http://project.com/customer.
 
 ### Functionalities for the Customer (GET Requests)
 
-- **(CUS) In the customer's main website (ex. GET http://project.com/customer):**
-    - A top navbar that has a "Products I bought", which leads to another page that shows all the products that the customer boutht.
+- **GET http://project.com/customer - Main website for customers.**
+    - A top navbar that has a __"Products I bought"__ button, which leads to another page that shows all the products that the customer boutht.
     - Some form of list of items that the customer can by (like amamzon),
+      - This can be pre-filled by hand, or have a admin feature that adds products.
     - (Optional) A search bar to find products with auto-complete.
         - Can be achieved easily via "SELECT * FROM Products WHERE input LIKE '%input%'".
 
-- **(CUS) Each product details page (ex. GET http://project.com/product/):**
+- **GET http://project.com/product/%PD_ID% - Selected product page.**
     - Shows basic info about the product
         - Product Name
         - Product Description
@@ -22,11 +24,11 @@ ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.
             - Mapping from product to Salesperson could be arbitrary or pre-defined by us (either works fine).
         - (Optional) Price
         - (Optional) Amazon-like review system
-    - A "BUY" button that purchases the product
+    - A __"BUY"__ button that purchases the product
         - Check if Customer's income is enought for purchase.
             - Reject purchase if income in insufficent.
         
-- **(CUS) A "My Orders" page that lists all the prodcts that the customer bought (ex. GET http://project.com/customer/myorders)**
+- **GET http://project.com/customer/myorders - A page that lists all the products the customer bought.**
     - Default sorting based on purchase date.
     - For each row of purchased product, there should be a button that says the following (BUT NOT BOTH):
         - __"Crete New Case"__
@@ -36,7 +38,7 @@ ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.
     - This should act as a prelimiary defense against non-purchased customers trying to start a case on the product.
     - But this should also be chceked within the SQL file using the CHECK constraint.
 
-- **(CUS) A "Create New Case" page that allows a product-purchased customer to start a case against the product (ex. GET http://project.com/customer/createcase)**
+- **GET http://project.com/customer/createcase/%PD_ID% - A "Create New Case" page that allows a product-purchased customer to start a case against the product.**
     - The page will have a form like-structure (label and value), with a "Submit" button at the very button.
         - __summary__: A basic title describing the issue.
             - ex) ``` Summary: My router can't connect to 5GHz networks.```
@@ -46,11 +48,11 @@ ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.
             - ex) ``` Customer: John Smith```
         - __Product__: The __name__ from the __Products__ table.
             - ex) ``` Product: TP-LINK_N20P Router```
-        - NOTE: For __Customers.CUS_ID__ and __Products.PD_ID__, we can save them 
-                as cookies so that we don't have to reveal the actual Primary Keys of 
-                the customer and product in the HTML form.
+        - NOTE: For __Customers.CUS_ID__, we can save them as cookies so that 
+                we don't have to reveal the actual Primary Keys of the customer 
+                and product in the HTML form.
         - NOTE: Once a "logged in" customer arrives at this page, we know the 
-                customer's __CUS_ID__ and the product's __PD_ID__ (via cookies), so we can pre-fill 
+                customer's __CUS_ID__ (via cookie) and the product's __PD_ID__ (via request params), so we can pre-fill 
                 the customer and product name value using the __CUS_ID__ and __PD_ID__ 
                 and make the input field disabled so that the customer cannot change the value of it.
         - __Submit__ button will be disabled (unclickable) until the following requirement has met:
@@ -66,15 +68,23 @@ ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.
           the case will automatically close with the __Cases.closetime__ being the 
           moment someone updated the __Cases.COMRES_ID__.
 
-- **(CUS) A "View My Case" page that allows a product-purchased customer to see 
-          the status and comments made by employees or customers of that case 
-          (ex. GET http://project.com/customer/cases/%CAS_ID%)**
+- **GET http://project.com/customer/cases/%CAS_ID% - A "View My Case" page that 
+  allows a product-purchased customer to see the status and comments made by 
+  employees or customers of that case.**
     - The page will look similar to a chat page where the employee and customer 
       send and receive comments from each other.
     - The default view will be sorted by __CaseComments.ctime__, with the latest 
       comment appearing on the bottom of the page.
-    - If an empployee decides to close the case, a final comment will be auto-generated 
-      with the following: __"Employee Nancy has closed this case as Solved."__
+    - Unlike creating a new case, __a customer can visit other product case pages 
+      even if the customer did not purchase the product.__ However, the customer 
+      cannot post a comment if the customer did not buy the product in the case.
+    - If an empployee decides to close the case, depending on the reason it closed, 
+      a final comment will be auto-generated.
+      - If __SOLVED__: __"Employee Nancy has closed this case as solved."__
+      - If __UNRESOLVED__: __"Employee Nancy has closed this case as unresolved. 
+        Please review the case comments and also see if there are any common resolutions 
+        that have already solved the issue regarding  your product."__
+      - If __DUPLICATE__: __"Employee Nancy has closed this case as this is a duplicate issue that has already been discussed in http://project/customer/cases/69420"__
     - If an employee or another customer (who must have also bought the product) 
       decides to close the case by referring to a common resolution, a final comment 
       will be auto-generated with the following: __"Employee (or Customer) XXXX has
