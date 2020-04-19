@@ -3,6 +3,7 @@ drop database if exists IS2710DB;
 create database IS2710DB;
 use IS2710DB;
 
+-- Login system would be a good idea.
 CREATE TABLE Customers (
 	CUS_ID  int          NOT NULL AUTO_INCREMENT,
 	name    varchar(500) NOT NULL,
@@ -17,6 +18,7 @@ CREATE TABLE Products (
 	PRIMARY KEY (PD_ID)
 );
 -- .job: Job title of the sales person (ex. "Regional Manager" or "Intern", etc)
+-- Login system not needed. Just insert randome data via SQL.
 CREATE TABLE SalesPersons (
 	SP_ID       int          NOT NULL AUTO_INCREMENT,
 	name        varchar(500) NOT NULL,
@@ -25,6 +27,7 @@ CREATE TABLE SalesPersons (
 	job         varchar(500) NOT NULL,
 	PRIMARY KEY (SP_ID)
 );
+-- Login system would be a good idea.
 CREATE TABLE Employee (
 	EMP_ID      int          NOT NULL AUTO_INCREMENT,
 	name        varchar(500) NOT NULL,
@@ -108,6 +111,8 @@ CREATE TABLE Cases (
 );
 
 -- Each row here is a comment an employee or customer made about a case.
+-- Any employee can post a comment (not just the one assigned).
+-- Only customers that have also bought the product can post comments.
 -- .ctime: Time stamp of the posted comment.
 -- .ctext: Text of the comment.
 CREATE TABLE CaseComments (
@@ -118,7 +123,7 @@ CREATE TABLE CaseComments (
 	EMP_ID      int               ,
 	CUS_ID      int               ,
 	PRIMARY KEY (CMT_ID),
+	FOREIGN KEY (CAS_ID) REFERENCES Cases(CAS_ID),
 	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
-	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
-	FOREIGN KEY (CAS_ID) REFERENCES Cases(CAS_ID)
+	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID)
 );

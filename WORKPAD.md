@@ -2,8 +2,9 @@
 
 In the abscess of a final exam, the homework and projects will be weighed in more than usual, so I know it might be some extra work, here are a list of features that I strongly feel like we should implements:
 
-* ___Note: Since we are working with a free-tier version of Coud9, our actaul public URL will be something ugly like so:___
-___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.ide.preview.markdown/client/markdown.html?host=https://us-east-2.console.aws.amazon.com&id=markdown1___
+* __NOTE: This is just an abstract of the official API docmentation that I'll be creating, which will follow soon.__
+* __Note: Since we are working with a free-tier version of Coud9, our actaul public URL will be something ugly like so:__
+  __https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.ide.preview.markdown/client/markdown.html?host=https://us-east-2.console.aws.amazon.com&id=markdown1__
 * For the sake of simplicity, we will assume that our public URL will just be http://project.com for now.
 * If user only enters http://project.com, then user will be directed to http://project.com/customer.
 
@@ -38,7 +39,7 @@ ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.
     - This should act as a prelimiary defense against non-purchased customers trying to start a case on the product.
     - But this should also be chceked within the SQL file using the CHECK constraint.
 
-- **GET http://project.com/customer/createcase/%PD_ID% - A "Create New Case" page that allows a product-purchased customer to start a case against the product.**
+- **GET http://project.com/customer/create/case/%PD_ID% - A "Create New Case" page that allows a product-purchased customer to start a case against the product.**
     - The page will have a form like-structure (label and value), with a "Submit" button at the very button.
         - __summary__: A basic title describing the issue.
             - ex) ``` Summary: My router can't connect to 5GHz networks.```
@@ -78,47 +79,27 @@ ___https://d373lap04ubgnu.cloudfront.net/c9-5c89b22bf5a1-ide/@c9/ide/plugins/c9.
     - Unlike creating a new case, __a customer can visit other product case pages 
       even if the customer did not purchase the product.__ However, the customer 
       cannot post a comment if the customer did not buy the product in the case.
-    - If an empployee decides to close the case, depending on the reason it closed, 
+    - If an employee decides to close the case, depending on the reason it closed, 
       a final comment will be auto-generated.
       - If __SOLVED__: __"Employee Nancy has closed this case as solved."__
       - If __UNRESOLVED__: __"Employee Nancy has closed this case as unresolved. 
         Please review the case comments and also see if there are any common resolutions 
         that have already solved the issue regarding  your product."__
       - If __DUPLICATE__: __"Employee Nancy has closed this case as this is a duplicate issue that has already been discussed in http://project/customer/cases/69420"__
-    - If an employee or another customer (who must have also bought the product) 
-      decides to close the case by referring to a common resolution, a final comment 
-      will be auto-generated with the following: __"Employee (or Customer) XXXX has
+      - If __COMRES__: __"Employee Nancy has
       closed this case with a common resolution for this issue which you can find 
       here: http://project.com/comres/%COMRES_ID%".__
+        - If customer wants to do this, the customer must have purcahsed the product too.
 
 
-<!---
-    -- A case is created by a customer who has purchased a product.
-    -- A case cannot be opened by a customer who has not bought the product.
-    -- An employee will first check for new cases, and assign him/herself if there is one.
-    -- An employee will close the case when deemed finished or solved.
-    -- (Optional) For a case that already has a resolution posted, an employee can
-    --            link this case to the resolution without commenting and closing the case immediately.
-    -- .summary: A basic title for the case (ex. "Wifi isn't working on my device").
-    -- .description: The detailed text the customer complains about.
-    -- .opentime: When the customer first posted the case.
-    -- .closetime: When the employee last closed this case.
-CREATE TABLE Cases (
-	CAS_ID      int      NOT NULL AUTO_INCREMENT,
 
-	summary     text     NOT NULL,
-	description text     NOT NULL,
-	opentime    datetime NOT NULL,
-	closetime   datetime,
 
-	CUS_ID      int      NOT NULL,
-	EMP_ID      int,
-	PD_ID       int      NOT NULL,
-	COMRES_ID   int,
-	PRIMARY KEY (CAS_ID),
-	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
-	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
-	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
-	FOREIGN KEY (COMRES_ID) REFERENCES CommonResolutions(COMRES_ID)
-);
--->
+### Functionalities for the Customer (POST Requests)
+- **POST http://project.com/customer/create/case - Upload the case to the server.**
+    - Note: Customer must have made a purchase to that product in order to start a new case.
+- **POST http://project.com/customer/make/purchase - Makes a purcahse of a product sold by a salesperson.**
+- **POST http://project.com/customer/post/comres - Posts a common resolution to a issue from a product.**
+    - Note: Customer must have made a purchase to that product in order to post a common resolution.
+- **POST http://project.com/customer/post/casecomment - Posts a comment to a case regarding a product.**
+    - Note: While any employee can post comments, only customers that have purchased the product can post comments.
+
