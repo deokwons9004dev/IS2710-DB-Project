@@ -1,4 +1,4 @@
-## INFSCI 2710 - Database Management Project WORKPAD
+## INFSCI 2710 - Database Management Project
 
 ##### Usgae of this README
 This will include your typical README content found in most github repos, where 

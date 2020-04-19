@@ -60,9 +60,11 @@ CREATE TABLE CommonResolutions (
 	views       int          NOT NULL,
 	PD_ID       int          NOT NULL,
 	CUS_ID      int,
+	EMP_ID      int,
 	PRIMARY KEY (COMRES_ID),
 	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
-	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID)
+	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
+	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
 );
 
 
@@ -85,27 +87,31 @@ CREATE TABLE Cases (
 	opentime    datetime NOT NULL,
 	closetime   datetime,
 
+	PUR_ID      int      NOT NULL,
 	CUS_ID      int      NOT NULL,
-	EMP_ID      int,
 	PD_ID       int      NOT NULL,
+	EMP_ID      int,
 	COMRES_ID   int,
 	PRIMARY KEY (CAS_ID),
+	FOREIGN KEY (PUR_ID) REFERENCES Purchases(PUR_ID),
 	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
 	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
 	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
 	FOREIGN KEY (COMRES_ID) REFERENCES CommonResolutions(COMRES_ID)
 );
 
--- Each row here is a comment an employee made about a case.
+-- Each row here is a comment an employee or customer made about a case.
 -- .ctime: Time stamp of the posted comment.
 -- .ctext: Text of the comment.
 CREATE TABLE CaseComments (
 	CMT_ID      int       NOT NULL AUTO_INCREMENT,
 	ctime       datetime  NOT NULL,
 	ctext       text      NOT NULL,
-	EMP_ID      int       NOT NULL,
 	CAS_ID      int       NOT NULL,
+	EMP_ID      int               ,
+	CUS_ID      int               ,
 	PRIMARY KEY (CMT_ID),
 	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
+	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
 	FOREIGN KEY (CAS_ID) REFERENCES Cases(CAS_ID)
 );
