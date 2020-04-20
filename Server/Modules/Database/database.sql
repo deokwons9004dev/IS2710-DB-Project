@@ -3,18 +3,30 @@ drop database if exists IS2710DB;
 create database IS2710DB;
 use IS2710DB;
 
--- Login system would be a good idea.
+-- Login based on unique email and password hash (bcrypt).
+-- Would be good to add a UNIQUE customer email for searching.
 CREATE TABLE Customers (
 	CUS_ID  int          NOT NULL AUTO_INCREMENT,
 	name    varchar(500) NOT NULL,
+	email   varchar(500) NOT NULL UNIQUE,
+	pstext  varchar(500) NOT NULL,
 	address varchar(500) NOT NULL,
 	income  int          NOT NULL,
 	PRIMARY KEY (CUS_ID)
 );
+
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('David', 'deokwons9004@gmail.com', 'pass1234', 'home', 300);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jason', 'deokwons9004dev@gmail.com', 'pass1234', 'home', 100);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Mike', 'mike123@gmail.com', 'pass1234', 'work', 500);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jake', 'jake123@gmail.com', 'pass1234', 'work', 10);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Alice', 'alice123@gmail.com', 'pass1234', 'work', 1000);
+
+-- Searching would be done by name (UNIQUE not required.)
 CREATE TABLE Products (
 	PD_ID       int          NOT NULL AUTO_INCREMENT,
 	name        varchar(500) NOT NULL,
 	description text         NOT NULL,
+	price       int          NOT NULL,
 	PRIMARY KEY (PD_ID)
 );
 -- .job: Job title of the sales person (ex. "Regional Manager" or "Intern", etc)
@@ -23,17 +35,18 @@ CREATE TABLE SalesPersons (
 	SP_ID       int          NOT NULL AUTO_INCREMENT,
 	name        varchar(500) NOT NULL,
 	address     varchar(500) NOT NULL,
-	email       varchar(500) NOT NULL,
+	email       varchar(500) NOT NULL UNIQUE,
 	job         varchar(500) NOT NULL,
 	PRIMARY KEY (SP_ID)
 );
--- Login system would be a good idea.
+-- Login based on unique email and password hash (bcrypt).
 CREATE TABLE Employee (
 	EMP_ID      int          NOT NULL AUTO_INCREMENT,
 	name        varchar(500) NOT NULL,
 	address     varchar(500) NOT NULL,
 	phone       varchar(500) NOT NULL,
-	email       varchar(500) NOT NULL,
+	email       varchar(500) NOT NULL UNIQUE,
+	pshash      varchar(500) NOT NULL,
 	PRIMARY KEY (EMP_ID)
 );
 
@@ -42,6 +55,9 @@ CREATE TABLE Employee (
 -- This is useful for aggregation requirements later on.
 CREATE TABLE Purchases (
 	PUR_ID  int NOT NULL AUTO_INCREMENT,
+	
+	purchase_date datetime NOT NULL,
+	
 	CUS_ID  int NOT NULL,
 	SP_ID   int NOT NULL,
 	PD_ID   int NOT NULL,
@@ -58,16 +74,18 @@ CREATE TABLE Purchases (
 -- .views: This might be how we filter the top asked cases.
 CREATE TABLE CommonResolutions (
 	COMRES_ID   int          NOT NULL AUTO_INCREMENT,
+	
 	name        varchar(500) NOT NULL,
 	guide       text         NOT NULL,
 	views       int          NOT NULL,
+	
 	PD_ID       int          NOT NULL,
 	CUS_ID      int,
 	EMP_ID      int,
 	PRIMARY KEY (COMRES_ID),
 	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
 	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
-	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
+	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID)
 );
 
 
@@ -82,11 +100,12 @@ CREATE TABLE CommonResolutions (
 -- .description: The detailed text the customer complains about.
 -- .opentime: When the customer first posted the case.
 -- .closetime: When the employee last closed this case.
--- .closereason: Why the case was closed (ex. 'SOLVED', 'UNRESOLVED', 'DUPLICATE', 'COMRES')
--- .closereason.SOLVED: Issue was successfully resolved through chating with customer.
--- .closereason.UNRESOLVED: Issue was not solved despite effort to solve with customer.
--- .closereason.DUPLICATE: Issue with exact/similar content was uploaded.
--- .closereason.COMRES: Issue can be resolved by following the guide of one of our common resolutions.
+-- .status: Why the case was closed (ex. 'SOLVED', 'UNRESOLVED', 'DUPLICATE', 'COMRES')
+-- .status.OPEN: Issue was opened by a customer.
+-- .status.SOLVED: Issue was successfully resolved through chating with customer.
+-- .status.UNRESOLVED: Issue was not solved despite effort to solve with customer.
+-- .status.DUPLICATE: Issue with exact/similar content was uploaded.
+-- .status.COMRES: Issue can be resolved by following the guide of one of our common resolutions.
 -- Case is regarded as open as long as closetime and closereason are both NULL.
 CREATE TABLE Cases (
 	CAS_ID      int      NOT NULL AUTO_INCREMENT,
@@ -95,17 +114,13 @@ CREATE TABLE Cases (
 	description text     NOT NULL,
 	opentime    datetime NOT NULL,
 	closetime   datetime,
-	closereason varchar(50),
+	status      varchar(50) NOT NULL,
 
 	PUR_ID      int      NOT NULL,
-	-- CUS_ID      int      NOT NULL,
-	-- PD_ID       int      NOT NULL,
 	EMP_ID      int,
 	COMRES_ID   int,
 	PRIMARY KEY (CAS_ID),
 	FOREIGN KEY (PUR_ID) REFERENCES Purchases(PUR_ID),
-	-- FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID),
-	-- FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID),
 	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
 	FOREIGN KEY (COMRES_ID) REFERENCES CommonResolutions(COMRES_ID)
 );
@@ -117,8 +132,10 @@ CREATE TABLE Cases (
 -- .ctext: Text of the comment.
 CREATE TABLE CaseComments (
 	CMT_ID      int       NOT NULL AUTO_INCREMENT,
+	
 	ctime       datetime  NOT NULL,
 	ctext       text      NOT NULL,
+	
 	CAS_ID      int       NOT NULL,
 	EMP_ID      int               ,
 	CUS_ID      int               ,

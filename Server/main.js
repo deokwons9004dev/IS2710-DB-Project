@@ -96,7 +96,11 @@ var multer       = require("multer");
 // *********************************
 // IMPORT REQUEST HANDLERS: HTML GET
 // *********************************
-// var GetMain                  = require("./Modules/Express/Get/GetMain.js");
+var GetMainHTML                  = require("./Modules/Express/Get/GetMainHTML.js");
+var GetCustomerMainHTML          = require("./Modules/Express/Get/GetCustomerMainHTML.js");
+var GetProductHTML          = require("./Modules/Express/Get/GetProductHTML.js");
+var GetCustomerMyOrdersHTML          = require("./Modules/Express/Get/GetCustomerMyOrdersHTML.js");
+var GetCustomerCaseCreateHTML          = require("./Modules/Express/Get/GetCustomerCaseCreateHTML.js");
 
 
 
@@ -213,10 +217,11 @@ app.use(function ipwareMiddleware (req, res, next) {
 // app.use('/img'      ,serveStatic(path.join(__dirname, '/../Web/img')));
 // app.use('/api'      ,serveStatic(path.join(__dirname, '/../Web/apidoc')));
 // app.use('/download' ,serveStatic(path.join(__dirname, '/../Web/download')));
-app.use(serveStatic(path.join(__dirname, '/../Web'), {
-	index     : ['index.html'],
-	extensions: ['html', 'htm']
-}));
+
+// app.use(serveStatic(path.join(__dirname, '/../Web'), {
+// 	index     : ['index.html'],
+// 	extensions: ['html', 'htm']
+// }));
 
 /* Session & Cookie Cleaner. This will run before
  * you catch any GET or POST requests. */
@@ -264,13 +269,64 @@ app.use(serveStatic(path.join(__dirname, '/../Web'), {
 // *********************************
 // GET REQUESTS (HTML)
 // *********************************
-// /**
-//  * @api {get} / Main Page Access
-//  * @apiName    GetMain
-//  * @apiGroup   Get Requests (HTML)
-//  * @apiVersion 1.0.0
-//  */
-// app.get("/", function (req, res) { GetMain(req, res); });
+/**
+ * @api {get} / Requests main HTML template page (customer).
+ * @apiName    GetMainHTML
+ * @apiGroup   Get Requests (HTML)
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/", function (req, res) { GetMainHTML(req, res); });
+/**
+ * @api {get} /customer Requests main customer HTML template page (same as GET /).
+ * @apiName    GetCustomerMainHTML
+ * @apiGroup   Get Requests (HTML)
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/customer", function (req, res) { GetCustomerMainHTML(req, res); });
+/**
+ * @api {get} /product Requests a product detail template HTML page.
+ * @apiName    GetProduct
+ * @apiGroup   Get Requests (HTML)
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/product", function (req, res) { GetProductHTML(req, res); });
+/**
+ * @api {get} /customer/myorders Requests a customer "My Orders" template HTML page.
+ * @apiName    GetCustomerMyOrdersHTML
+ * @apiGroup   Get Requests (HTML)
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/customer/myorders", function (req, res) { GetCustomerMyOrdersHTML(req, res); });
+/**
+ * @api {get} /customer/case/create/:PD_ID Requests a customer "Create New Case" template HTML page.
+ * 
+ * @apiDescription The page will have a form like-structure (label and value), with a “Submit” button at the very button.
+ * It should have the following field inputs:
+ * - Summary: A basic title describing the issue.
+ *   ex) Summary: My router can't connect to 5GHz networks. 
+ * - Description: A detailed text providing more insight to the problem/issue thats occurring.
+ *   ex) Description: I bought this router because it said it can connect to 5GHz networks and blah... 
+ * - Customer: The name from the Customers table.
+ *   ex) Customer: John Smith
+ * - Product: The name from the Products table.
+ *   ex) Product: TP-LINK_N20P Router
+ * 
+ * - The customer's CUS_ID will be available via cookies, and the product's PD_ID 
+ *   will be available via the request params, and you can make subsequent GET requests 
+ *   to retrieve information about the customer and the product (and use their names 
+ *   to auto-fill in the fields).
+ * 
+ * @apiName    GetCustomerCaseCreateHTML
+ * @apiGroup   Get Requests (HTML)
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/customer/case/create/:PD_ID", function (req, res) { GetCustomerCaseCreateHTML(req, res); });
+
 // /**
 //  * @api {get} /login LonelyDuck login page.
 //  * @apiName    GetLogin

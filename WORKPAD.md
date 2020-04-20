@@ -8,8 +8,33 @@ In the abscess of a final exam, the homework and projects will be weighed in mor
 * For the sake of simplicity, we will assume that our public URL will just be http://project.com for now.
 * If user only enters http://project.com, then user will be directed to http://project.com/customer.
 
-### Functionalities for the Customer (GET Requests)
+### How to test project server.
+MySQL has a code called __ONLY_FULL_GROUP_BY__ which doesn't allow nonaggregated 
+columns that are not named in the GROUP BY caluse to be selected. Since we need 
+this feature to work for our aggregate features, I permanently disabled this 
+feature from our current installation of MySQL.
 
+Here are the steps I took to disable it (so we can re-enable when needed).
+
+1. First identify that that __ONLY_FULL_GROUP_BY__ SQL mode is enabled in our MySQL installation.
+
+    '''sql
+    mysql> SELECT @@GLOBAL.sql_mode;
+    '''
+
+You'll see that currently our MySQL installation has the option enabled by default as shown below.
++------------------------------------------------------------------------------------------------------------------------+
+| @@GLOBAL.sql_mode                                                                                                      |
++------------------------------------------------------------------------------------------------------------------------+
+| STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION |
++------------------------------------------------------------------------------------------------------------------------+
+
+### Functionalities for the Customer (Template HTML GET Requests)
+Requests defined here will only return the static HTML page that we created with 
+no actual data filled in. you must use these in conjuction with the Data GET requests 
+to then actaully replace/populate the template HTML to ones with actual user data filled in.
+
+- **GET http://project.com/ - Same as GET /customer**
 - **GET http://project.com/customer - Main website for customers.**
     - A top navbar that has a __"Products I bought"__ button, which leads to another page that shows all the products that the customer boutht.
     - Some form of list of items that the customer can by (like amamzon),
@@ -17,17 +42,23 @@ In the abscess of a final exam, the homework and projects will be weighed in mor
     - (Optional) A search bar to find products with auto-complete.
         - Can be achieved easily via "SELECT * FROM Products WHERE input LIKE '%input%'".
 
-- **GET http://project.com/product/%PD_ID% - Selected product page.**
-    - Shows basic info about the product
-        - Product Name
-        - Product Description
-        - Name, Email, Job title of the Salesperson selling this project.
-            - Mapping from product to Salesperson could be arbitrary or pre-defined by us (either works fine).
-        - (Optional) Price
-        - (Optional) Amazon-like review system
-    - A __"BUY"__ button that purchases the product
-        - Check if Customer's income is enought for purchase.
-            - Reject purchase if income in insufficent.
+- **GET http://project.com/product - A general product detail page.**
+  - Shows basic info about the product
+      - Product Name
+      - Product Description
+      - Name, Email, Job title of the Salesperson selling this project.
+          - Mapping from product to Salesperson could be arbitrary or pre-defined by us (either works fine).
+      - Product Price
+      - (Optional) Amazon-like review system
+  - A __"BUY"__ button that purchases the product
+      - Check if Customer's income is enought for purchase.
+          - Reject purchase if income in insufficent.
+  - Note: This will only send the template HTML of the product information. You 
+    should also request data for the specific product using the GET request with the param attached.
+    - ex) How to load a product page with the specific product information.
+        1. GET http://project.com/product <-- Load the HTML page first.
+        2. GET http://project.com/product/12345 <-- Retrieve data about the product.
+        3. Use front-end JS (Jquery, etc) to replace the template HTML with the data provided.
         
 - **GET http://project.com/customer/myorders - A page that lists all the products the customer bought.**
     - Default sorting based on purchase date.
@@ -38,8 +69,10 @@ In the abscess of a final exam, the homework and projects will be weighed in mor
             - This is when a customer has already opened a case and can see the progress of the case.
     - This should act as a prelimiary defense against non-purchased customers trying to start a case on the product.
     - But this should also be chceked within the SQL file using the CHECK constraint.
+    - Note: This only sends the template HTML page. you must use this with the Data 
+            GET request in the next section to actually retrieve order data of that customer.
 
-- **GET http://project.com/customer/create/case/%PD_ID% - A "Create New Case" page that allows a product-purchased customer to start a case against the product.**
+- **GET http://project.com/customer/case/create/%PD_ID% - A "Create New Case" page that allows a product-purchased customer to start a case against the product.**
     - The page will have a form like-structure (label and value), with a "Submit" button at the very button.
         - __summary__: A basic title describing the issue.
             - ex) ``` Summary: My router can't connect to 5GHz networks.```
@@ -69,7 +102,7 @@ In the abscess of a final exam, the homework and projects will be weighed in mor
           the case will automatically close with the __Cases.closetime__ being the 
           moment someone updated the __Cases.COMRES_ID__.
 
-- **GET http://project.com/customer/cases/%CAS_ID% - A "View My Case" page that 
+- **GET http://project.com/customer/case - A "View My Case" page that 
   allows a product-purchased customer to see the status and comments made by 
   employees or customers of that case.**
     - The page will look similar to a chat page where the employee and customer 
@@ -89,17 +122,38 @@ In the abscess of a final exam, the homework and projects will be weighed in mor
       - If __COMRES__: __"Employee Nancy has
       closed this case with a common resolution for this issue which you can find 
       here: http://project.com/comres/%COMRES_ID%".__
-        - If customer wants to do this, the customer must have purcahsed the product too.
 
+
+### Functionalities for the Customer (Data GET Requests)
+- **GET http://project.com/product/%PD_ID% - Retrieve information about a specific product.**
+- **GET http://project.com/customer/%CUS_ID%/myorders - Retrieve all order information of the given customer.**
+- **GET http://project.com/customer/case/%CAS_ID% - Retrieve all information about the case opened by customer.**
 
 
 
 ### Functionalities for the Customer (POST Requests)
-- **POST http://project.com/customer/create/case - Upload the case to the server.**
-    - Note: Customer must have made a purchase to that product in order to start a new case.
-- **POST http://project.com/customer/make/purchase - Makes a purcahse of a product sold by a salesperson.**
-- **POST http://project.com/customer/post/comres - Posts a common resolution to a issue from a product.**
+- **POST http://project.com/customer/purchase/make - Makes a purcahse of a product sold by a salesperson.**
+- **POST http://project.com/customer/comres/post - Posts a common resolution to a issue from a product.**
     - Note: Customer must have made a purchase to that product in order to post a common resolution.
-- **POST http://project.com/customer/post/casecomment - Posts a comment to a case regarding a product.**
+- **POST http://project.com/customer/case/create - Upload the case to the server.**
+    - Note: Customer must have made a purchase to that product in order to start a new case.
+- **POST http://project.com/customer/case/comment - Posts a comment to a case regarding a product.**
     - Note: While any employee can post comments, only customers that have purchased the product can post comments.
 
+
+### Functionalities for the Employees (GET Requests)
+- **GET http://project.com/employee - Main admin webpage for employees.**
+    - This page should include the search bar for the __"Employee Browsing"__ feature.
+    - This page should include the search bar for the __"Data Aggregation"__ feature.
+- **GET http://project.com/employee/results/search - Results page for the search feature.**
+- **GET http://project.com/employee/results/agg - Results page for the data aggregation feature.**
+
+### Functionalities for the Customer (POST Requests)
+- **POST http://project.com/employee/case/update - Update the state of an existing case.**
+- **POST http://project.com/employee/case/comment - Posts a comment to an existing case.**
+
+### Advanced DB Features
+- Table R/W locking
+    - https://stackoverflow.com/questions/50539828/mysql-lock-tables-with-autocommit-vs-start-transaction
+- Indexing
+- 

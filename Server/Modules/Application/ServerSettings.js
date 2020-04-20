@@ -53,9 +53,14 @@ exports.PATH = {
         SQL: path.join(__dirname, '/../Database/database.sql')
     },
     PAGES: {
-        INDEX            : path.join(__dirname, '/../../../Web/html/Index.html'),
-        LOGIN            : path.join(__dirname, '/../../../Web/html/Login.html'),
-        REGISTER         : path.join(__dirname, '/../../../Web/html/Register.html'),
+        INDEX                : path.join(__dirname, '/../../../Web/Index.html'),
+        CUSTOMER_MAIN        : path.join(__dirname, '/../../../Web/Index.html'),
+        CUSTOMER_MYORDERS    : path.join(__dirname, '/../../../Web/CustomerMyOrders.html'),
+        CUSTOMER_CASE_CREATE : path.join(__dirname, '/../../../Web/CustomerCaseCreate.html'),
+        CUSTOMER_CASE        : path.join(__dirname, '/../../../Web/CustomerCase.html'),
+        PRODUCT              : path.join(__dirname, '/../../../Web/Product.html'),
+        LOGIN                : path.join(__dirname, '/../../../Web/Login.html'),
+        REGISTER             : path.join(__dirname, '/../../../Web/Register.html'),
     },
     TEMPLATES: {
         LICENSE_RECEIPT: path.join(__dirname, '/../../../Web/html/LicenseEmailTemplate.html'),

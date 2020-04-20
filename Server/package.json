@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"description": "INFSCI 2710 Project Web Server",
 	"author": "David Song <deokwons9004dev@gmail.com>",
+	"apidoc": {
+		"title": "IS 2710 Projecy Server API Docs"
+	}
 	"dependencies": {
 		"anti-ddos": "0.0.1",
 		"async-mutex": "^0.1.4",
