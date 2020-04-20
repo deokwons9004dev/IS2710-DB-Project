@@ -14,12 +14,13 @@ CREATE TABLE Customers (
 	income  int          NOT NULL,
 	PRIMARY KEY (CUS_ID)
 );
+-- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('David', 'deokwons9004@gmail.com', 'pass1234', 'home', 300);
+-- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jason', 'deokwons9004dev@gmail.com', 'pass1234', 'home', 100);
+-- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Mike', 'mike123@gmail.com', 'pass1234', 'work', 500);
+-- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jake', 'jake123@gmail.com', 'pass1234', 'work', 10);
+-- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Alice', 'alice123@gmail.com', 'pass1234', 'work', 1000);
 
-INSERT INTO Customers (name, email, pstext, address, income) VALUES ('David', 'deokwons9004@gmail.com', 'pass1234', 'home', 300);
-INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jason', 'deokwons9004dev@gmail.com', 'pass1234', 'home', 100);
-INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Mike', 'mike123@gmail.com', 'pass1234', 'work', 500);
-INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jake', 'jake123@gmail.com', 'pass1234', 'work', 10);
-INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Alice', 'alice123@gmail.com', 'pass1234', 'work', 1000);
+
 
 -- Searching would be done by name (UNIQUE not required.)
 CREATE TABLE Products (
@@ -29,6 +30,10 @@ CREATE TABLE Products (
 	price       int          NOT NULL,
 	PRIMARY KEY (PD_ID)
 );
+-- INSERT INTO Products (name, description, price) VALUES ('Router', '5GHz Router', 99);
+
+
+
 -- .job: Job title of the sales person (ex. "Regional Manager" or "Intern", etc)
 -- Login system not needed. Just insert randome data via SQL.
 CREATE TABLE SalesPersons (
@@ -39,6 +44,10 @@ CREATE TABLE SalesPersons (
 	job         varchar(500) NOT NULL,
 	PRIMARY KEY (SP_ID)
 );
+-- INSERT INTO SalesPersons (name, address, email, job) VALUES ('James Smith', 'home address', 'smith123@gmail.com', 'SalesTeam');
+
+
+
 -- Login based on unique email and password hash (bcrypt).
 CREATE TABLE Employee (
 	EMP_ID      int          NOT NULL AUTO_INCREMENT,
@@ -46,9 +55,12 @@ CREATE TABLE Employee (
 	address     varchar(500) NOT NULL,
 	phone       varchar(500) NOT NULL,
 	email       varchar(500) NOT NULL UNIQUE,
-	pshash      varchar(500) NOT NULL,
+	pstext      varchar(500) NOT NULL,
 	PRIMARY KEY (EMP_ID)
 );
+-- INSERT INTO Employee (name, address, phone, email, pstext) VALUES ('Nancy Miller', 'home address', '412-111-2222', 'nancy123@gmail.com', 'pass1234');
+
+
 
 -- This table is to check whether a customer bought a product in order to open a case.
 -- It also matches the customer with the sales person who sold the product.
@@ -66,6 +78,9 @@ CREATE TABLE Purchases (
 	FOREIGN KEY (SP_ID) REFERENCES SalesPersons(SP_ID),
 	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID)
 );
+-- INSERT INTO Purchases (purchase_date, CUS_ID, SP_ID, PD_ID) VALUES ('2020-04-20 05:30:21', 1, 1, 1);
+
+
 
 -- A common resolution is likely written by an employee (or a customer) that tries to post resolutions
 -- about a common problem with a specific product. In case a customer wrote it, we link this resolution to that customer.
