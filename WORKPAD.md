@@ -170,4 +170,8 @@ to then actaully replace/populate the template HTML to ones with actual user dat
 - Table R/W locking
     - https://stackoverflow.com/questions/50539828/mysql-lock-tables-with-autocommit-vs-start-transaction
 - Indexing
-- 
+
+### Misc Tips with Cloud9
+- **Would probably be a good idea to disable swipe gesture to go back pages.**
+
+  If you swipe left inside the editor too far, you will trigger the browser to go to the previous page, and potentially lose progress.

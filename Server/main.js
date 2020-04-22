@@ -32,11 +32,6 @@ var ipware    = require('ipware')().get_ip;
 // var requestIP = require('request-ip');
 
 
-// This is some change~
-// This is some more change.
-// fsfsfsdf
-
-
 
 // *********************************
 // IMPORT CUSTOM MODULES: Logging
@@ -57,7 +52,6 @@ const DEF    = Settings;
 // *********************************
 var t_db    = require("./Modules/Application/DatabaseTools.js");
 var t_log   = require('./Modules/Application/LogTools.js');
-// var t_email = require('./Modules/Application/EmailTools.js');
 
 // *********************************
 // IMPORT CUSTOM MODULES: Managers
@@ -96,11 +90,18 @@ var multer       = require("multer");
 // *********************************
 // IMPORT REQUEST HANDLERS: HTML GET
 // *********************************
-var GetMainHTML                  = require("./Modules/Express/Get/GetMainHTML.js");
-var GetCustomerMainHTML          = require("./Modules/Express/Get/GetCustomerMainHTML.js");
-var GetProductHTML          = require("./Modules/Express/Get/GetProductHTML.js");
-var GetCustomerMyOrdersHTML          = require("./Modules/Express/Get/GetCustomerMyOrdersHTML.js");
-var GetCustomerCaseCreateHTML          = require("./Modules/Express/Get/GetCustomerCaseCreateHTML.js");
+var GetMainHTML               = require("./Modules/Express/Get/GetMainHTML.js");
+var GetCustomerMainHTML       = require("./Modules/Express/Get/GetCustomerMainHTML.js");
+var GetAPIHTML                = require("./Modules/Express/Get/GetAPIHTML.js");
+
+// var GetProductHTML            = require("./Modules/Express/Get/GetProductHTML.js");
+// var GetCustomerMyOrdersHTML   = require("./Modules/Express/Get/GetCustomerMyOrdersHTML.js");
+// var GetCustomerCaseCreateHTML = require("./Modules/Express/Get/GetCustomerCaseCreateHTML.js");
+
+var GetCustomerCaseDetailsTemplateHTML     = require("./Modules/Express/Get/GetCustomerCaseDetailsTemplateHTML.js");
+var GetCustomerCaseNewTemplateHTML         = require("./Modules/Express/Get/GetCustomerCaseNewTemplateHTML.js");
+var GetCustomerPurchaseDetailsTemplateHTML = require("./Modules/Express/Get/GetCustomerPurchaseDetailsTemplateHTML.js");
+var GetProductResolutionsTemplateHTML      = require("./Modules/Express/Get/GetProductResolutionsTemplateHTML.js");
 
 
 
@@ -139,11 +140,21 @@ var client = null; // Current MySQL Connection.
 // DEFINE: Express Application
 // *********************************
 var app = express();
+
+// app.set("listenIP"   , '127.0.0.1');   // For Live Preview inside cloud9.
+app.set("listenIP"   , '0.0.0.0');   // For Live Preview inside cloud9.
+// app.set("listenIP"   , '3.135.64.50'); // For sharing server app with public internet.
+// app.set("listenIP"   , '3.136.229.81'); // For sharing server app with public internet (using elastic IP).
+// app.set("listenIP"   , '172.31.25.127'); // For sharing server app with public internet (using private IP)
+
+// app.set("port"       , 80);
 app.set("port"       , 8080);
+app.set("port"       , 8081);
 app.set("port_secure", 4001); // Inactive.
+
 app.set('trust proxy', 1);
 
-var server = http.createServer(app).listen(app.get('port'), async function () {
+var server = http.createServer(app).listen(app.get('port'), app.get('listenIP'), async function () {
 
 	// // (LOCK) Initialize master mutex lock.
 	// SVM.initMasterLock();
@@ -212,10 +223,10 @@ app.use(function ipwareMiddleware (req, res, next) {
 
 
 // app.use('/pages'    ,serveStatic(path.join(__dirname, '/../Web/pages')));
-// app.use('/css'      ,serveStatic(path.join(__dirname, '/../Web/css')));
-// app.use('/js'       ,serveStatic(path.join(__dirname, '/../Web/js')));
-// app.use('/img'      ,serveStatic(path.join(__dirname, '/../Web/img')));
-// app.use('/api'      ,serveStatic(path.join(__dirname, '/../Web/apidoc')));
+app.use('/css'      ,serveStatic(path.join(__dirname, '/../Web/css')));
+app.use('/js'       ,serveStatic(path.join(__dirname, '/../Web/js')));
+app.use('/img'      ,serveStatic(path.join(__dirname, '/../Web/img')));
+app.use('/api'      ,serveStatic(path.join(__dirname, '/../Web/apidoc')));
 // app.use('/download' ,serveStatic(path.join(__dirname, '/../Web/download')));
 
 // app.use(serveStatic(path.join(__dirname, '/../Web'), {
@@ -270,39 +281,142 @@ app.use(function ipwareMiddleware (req, res, next) {
 // GET REQUESTS (HTML)
 // *********************************
 /**
- * @api {get} / Requests main HTML template page (customer).
+ * @apiDefine GET_HTML Get (HTML)
+ * Normal GET Request APIs for HTML pages.
+ */
+ 
+/**
+ * @api {get} / /
+ * @apiDescription Requests main intro page.<br />
+ * This page shows the list of available products, but since user 
+ * is not logged in as either a customer or an employee, there is no buy option 
+ * for the products, but they can see the resolutions.
+ * 
  * @apiName    GetMainHTML
- * @apiGroup   Get Requests (HTML)
+ * @apiGroup   GET_HTML
  * @apiVersion 1.0.0
  * @apiSuccess {String} HTML data of the page.
  */
 app.get("/", function (req, res) { GetMainHTML(req, res); });
+
 /**
- * @api {get} /customer Requests main customer HTML template page (same as GET /).
+ * @api {get} /customer /customer
+ * @apiDescription Requests main page for logged in customer.<br />
+ * This page should show at least the following:
+ * - My Info Table: A single row table that shows the basic information about the customer.
+ * - My Purchases Table: A table that shows all the purchases that the customer has made.
+ * - My Cases Table: A table that shows all the cases that the customer has opened (started).
+ * - Products Table: The table of products available to buy.
+ * 
  * @apiName    GetCustomerMainHTML
- * @apiGroup   Get Requests (HTML)
+ * @apiGroup   GET_HTML
  * @apiVersion 1.0.0
  * @apiSuccess {String} HTML data of the page.
  */
 app.get("/customer", function (req, res) { GetCustomerMainHTML(req, res); });
+
 /**
- * @api {get} /product Requests a product detail template HTML page.
- * @apiName    GetProduct
- * @apiGroup   Get Requests (HTML)
+ * @api {get} /api /api
+ * @apiDescription Requests the API page for this server.
+ * 
+ * @apiName    GetAPIHTML
+ * @apiGroup   GET_HTML
  * @apiVersion 1.0.0
  * @apiSuccess {String} HTML data of the page.
  */
-app.get("/product", function (req, res) { GetProductHTML(req, res); });
+app.get("/api", function (req, res) { GetAPIHTML(req, res); });
+
+
+
+
+// *********************************
+// GET REQUESTS (HTML Templates)
+// *********************************
 /**
- * @api {get} /customer/myorders Requests a customer "My Orders" template HTML page.
- * @apiName    GetCustomerMyOrdersHTML
- * @apiGroup   Get Requests (HTML)
+ * @apiDefine GET_TEMPLATE_HTML Get (TemplateHTML)
+ * GET requests for data-empty template pages.<br />
+ * These requests will only send the data-empty template HTML to the browser.<br />
+ * To provide the proper HTML page with the user data supplied, once the user 
+ * clicks a link (or a button) that has the resource's unique identifier 
+ * (usually the Primary Key of the row), you must save the UID as a temp cookie
+ * and first request this template page. Then, once the page is completely rendered,
+ * you can use the appropriate Data GET request to get the specific resource data
+ * using the cookie value as the parameter(s).<br />
+ * Make sure to remove the temp cookie after use.<br />
+ * For a visual guide, check the "Misc/LinkClickRequestDiagram.png" for how a link
+ * click should be handled.
+ */
+
+/**
+ * @api {get} /customer/case/details /customer/case/details
+ * 
+ * @apiDescription Requests a case detail template HTML page.
+ * 
+ * @apiName    GetCustomerCaseDetailsTemplateHTML
+ * @apiGroup   GET_TEMPLATE_HTML
  * @apiVersion 1.0.0
  * @apiSuccess {String} HTML data of the page.
  */
-app.get("/customer/myorders", function (req, res) { GetCustomerMyOrdersHTML(req, res); });
+app.get("/customer/case/details", function (req, res) { GetCustomerCaseDetailsTemplateHTML(req, res); });
 /**
- * @api {get} /customer/case/create/:PD_ID Requests a customer "Create New Case" template HTML page.
+ * @api {get} /customer/case/new /customer/case/new
+ * 
+ * @apiDescription Requests a open new case template HTML page.
+ * 
+ * @apiName    GetCustomerCaseNewTemplateHTML
+ * @apiGroup   GET_TEMPLATE_HTML
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/customer/case/new", function (req, res) { GetCustomerCaseNewTemplateHTML(req, res); });
+/**
+ * @api {get} /customer/purchase/details /customer/purchase/details
+ * 
+ * @apiDescription Requests a customer purchase detail template HTML page.
+ * 
+ * @apiName    GetCustomerPurchaseDetailsTemplateHTML
+ * @apiGroup   GET_TEMPLATE_HTML
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/customer/purchase/details", function (req, res) { GetCustomerPurchaseDetailsTemplateHTML(req, res); });
+/**
+ * @api {get} /product/resolutions /product/resolutions
+ * 
+ * @apiDescription Requests a product's resolution template HTML page.
+ * 
+ * @apiName    GetProductResolutionsTemplateHTML
+ * @apiGroup   GET_TEMPLATE_HTML
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/product/resolutions", function (req, res) { GetProductResolutionsTemplateHTML(req, res); });
+
+
+
+
+// *********************************
+// GET REQUESTS (Data)
+// *********************************
+
+
+// *********************************
+// POST REQUESTS (General)
+// *********************************
+
+
+// *********************************
+// POST REQUESTS (Search)
+// *********************************
+
+
+// *********************************
+// POST REQUESTS (Aggregation)
+// *********************************
+
+
+/**
+ *  {get} /customer/case/create/:PD_ID Requests a customer "Create New Case" template HTML page.
  * 
  * @apiDescription The page will have a form like-structure (label and value), with a “Submit” button at the very button.
  * It should have the following field inputs:
@@ -325,26 +439,12 @@ app.get("/customer/myorders", function (req, res) { GetCustomerMyOrdersHTML(req,
  * @apiVersion 1.0.0
  * @apiSuccess {String} HTML data of the page.
  */
-app.get("/customer/case/create/:PD_ID", function (req, res) { GetCustomerCaseCreateHTML(req, res); });
-
-// /**
-//  * @api {get} /login LonelyDuck login page.
-//  * @apiName    GetLogin
-//  * @apiGroup   Get Requests (HTML)
-//  * @apiVersion 1.0.0
-//  */
-// app.get("/login", function (req, res) { GetLogin(req, res); });
-// /**
-//  * @api {get} /register LonelyDuck register page.
-//  * @apiName    GetRegister
-//  * @apiGroup   Get Requests (HTML)
-//  * @apiVersion 1.0.0
-//  */
-// app.get("/register", function (req, res) { GetRegister(req, res); });
-// /**
-//  * @api {get} /psreset LonelyDuck password reset page.
-//  * @apiName    GetPasswordReset
-//  * @apiGroup   Get Requests (HTML)
-//  * @apiVersion 1.0.0
-//  */
-// app.get("/psreset", function (req, res) { GetPasswordReset(req, res); });
+// app.get("/customer/case/create/:PD_ID", function (req, res) { GetCustomerCaseCreateHTML(req, res); });
+/**
+ *  {get} /customer/case Requests a "View My Case" template HTML page.
+ * @apiName    GetCustomerMyOrdersHTML
+ * @apiGroup   Get Requests (HTML)
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+// app.get("/customer/myorders", function (req, res) { GetCustomerMyOrdersHTML(req, res); });

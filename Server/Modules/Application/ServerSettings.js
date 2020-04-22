@@ -53,19 +53,22 @@ exports.PATH = {
         SQL: path.join(__dirname, '/../Database/database.sql')
     },
     PAGES: {
+        API                  : path.join(__dirname, '/../../../Web/apidoc/index.html'),
         INDEX                : path.join(__dirname, '/../../../Web/Index.html'),
-        CUSTOMER_MAIN        : path.join(__dirname, '/../../../Web/Index.html'),
-        CUSTOMER_MYORDERS    : path.join(__dirname, '/../../../Web/CustomerMyOrders.html'),
-        CUSTOMER_CASE_CREATE : path.join(__dirname, '/../../../Web/CustomerCaseCreate.html'),
-        CUSTOMER_CASE        : path.join(__dirname, '/../../../Web/CustomerCase.html'),
-        PRODUCT              : path.join(__dirname, '/../../../Web/Product.html'),
-        LOGIN                : path.join(__dirname, '/../../../Web/Login.html'),
-        REGISTER             : path.join(__dirname, '/../../../Web/Register.html'),
+        CUSTOMER_MAIN        : path.join(__dirname, '/../../../Web/CustomerMain.html'),
+        
+        // CUSTOMER_MYORDERS    : path.join(__dirname, '/../../../Web/CustomerMyOrders.html'),
+        // CUSTOMER_CASE_CREATE : path.join(__dirname, '/../../../Web/CustomerCaseCreate.html'),
+        // CUSTOMER_CASE        : path.join(__dirname, '/../../../Web/CustomerCase.html'),
+        // PRODUCT              : path.join(__dirname, '/../../../Web/Product.html'),
+        // LOGIN                : path.join(__dirname, '/../../../Web/Login.html'),
+        // REGISTER             : path.join(__dirname, '/../../../Web/Register.html'),
     },
     TEMPLATES: {
-        LICENSE_RECEIPT: path.join(__dirname, '/../../../Web/html/LicenseEmailTemplate.html'),
-        ACCOUNT_VERIFY : path.join(__dirname, '/../../../Web/html/AccountVerifyEmailTemplate.html'),
-        PASSWORD_RESET : path.join(__dirname, '/../../../Web/html/PasswordResetEmailTemplate.html')
+        CUSTOMER_CASE_DETAILS     : path.join(__dirname, '/../../../Web/CustomerCaseDetailsTP.html'),
+        CUSTOMER_CASE_NEW         : path.join(__dirname, '/../../../Web/CustomerCaseNewTP.html'),
+        CUSTOMER_PURCHASE_DETAILS : path.join(__dirname, '/../../../Web/CustomerPurchaseDetailsTP.html'),
+        PRODUCT_RESOLUTIONS       : path.join(__dirname, '/../../../Web/ProductResolutionsTP.html'),
     }
 }
 

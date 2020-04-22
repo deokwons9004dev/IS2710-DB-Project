@@ -1,6 +1,6 @@
 /**
  * IS2710 Project Web Server
- * GET (HTML) - /
+ * GET (HTML) - /customer/case/new
  *
  * Author : David Song (deokwons9004dev@gmail.com)
  * Version: 1.0.0
@@ -11,7 +11,7 @@
  // *********************************
  var fs   = require("fs");
  var path = require("path");
- 
+
  // *********************************
  // IMPORT NPM MODULES
  // *********************************
@@ -45,9 +45,9 @@
  // *********************************
 module.exports = function getMain (req, res) {
     // printraw('');
-    print(req, '(Start) GET /');
+    print(req, '(Start) GET /customer/case/new');
 
-    var html = fs.readFileSync(DEF.PATH.PAGES.INDEX, 'utf8');
+    var html = fs.readFileSync(DEF.PATH.TEMPLATES.CUSTOMER_CASE_NEW, 'utf8');
     res.send(html.toString());
 
     success(req, '(End) Page Sent.');

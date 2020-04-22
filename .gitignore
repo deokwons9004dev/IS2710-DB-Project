@@ -1,3 +1,5 @@
 .DS_Store
 .c9/
 Server/node_modules
+apiDocTemplates/
+Web/apidoc/

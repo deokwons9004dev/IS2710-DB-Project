@@ -1,6 +1,6 @@
 /**
  * IS2710 Project Web Server
- * GET (HTML) - /Index.html
+ * GET (HTML) - /customer
  *
  * Author : David Song (deokwons9004dev@gmail.com)
  * Version: 1.0.0
@@ -45,7 +45,7 @@
  // *********************************
 module.exports = function getMain (req, res) {
     // printraw('');
-    print(req, '(Start) GET /');
+    print(req, '(Start) GET /customer');
 
     var html = fs.readFileSync(DEF.PATH.PAGES.CUSTOMER_MAIN, 'utf8');
     res.send(html.toString());
