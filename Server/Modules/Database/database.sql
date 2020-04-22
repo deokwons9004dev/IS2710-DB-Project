@@ -14,11 +14,12 @@ CREATE TABLE Customers (
 	income  int          NOT NULL,
 	PRIMARY KEY (CUS_ID)
 );
--- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('David', 'deokwons9004@gmail.com', 'pass1234', 'home', 300);
--- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jason', 'deokwons9004dev@gmail.com', 'pass1234', 'home', 100);
--- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Mike', 'mike123@gmail.com', 'pass1234', 'work', 500);
--- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jake', 'jake123@gmail.com', 'pass1234', 'work', 10);
--- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Alice', 'alice123@gmail.com', 'pass1234', 'work', 1000);
+
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('David', 'deokwons9004@gmail.com', 'pass1234', 'home', 300);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jason', 'deokwons9004dev@gmail.com', 'pass1234', 'home', 100);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Mike', 'mike123@gmail.com', 'pass1234', 'work', 500);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jake', 'jake123@gmail.com', 'pass1234', 'work', 10);
+INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Alice', 'alice123@gmail.com', 'pass1234', 'work', 1000);
 
 
 
@@ -30,7 +31,8 @@ CREATE TABLE Products (
 	price       int          NOT NULL,
 	PRIMARY KEY (PD_ID)
 );
--- INSERT INTO Products (name, description, price) VALUES ('Router', '5GHz Router', 99);
+
+INSERT INTO Products (name, description, price) VALUES ('Router', '5GHz Router', 99);
 
 
 
@@ -44,7 +46,8 @@ CREATE TABLE SalesPersons (
 	job         varchar(500) NOT NULL,
 	PRIMARY KEY (SP_ID)
 );
--- INSERT INTO SalesPersons (name, address, email, job) VALUES ('James Smith', 'home address', 'smith123@gmail.com', 'SalesTeam');
+
+INSERT INTO SalesPersons (name, address, email, job) VALUES ('James Smith', 'home address', 'smith123@gmail.com', 'SalesTeam');
 
 
 
@@ -58,7 +61,8 @@ CREATE TABLE Employee (
 	pstext      varchar(500) NOT NULL,
 	PRIMARY KEY (EMP_ID)
 );
--- INSERT INTO Employee (name, address, phone, email, pstext) VALUES ('Nancy Miller', 'home address', '412-111-2222', 'nancy123@gmail.com', 'pass1234');
+
+INSERT INTO Employee (name, address, phone, email, pstext) VALUES ('Nancy Miller', 'home address', '412-111-2222', 'nancy123@gmail.com', 'pass1234');
 
 
 
@@ -78,7 +82,8 @@ CREATE TABLE Purchases (
 	FOREIGN KEY (SP_ID) REFERENCES SalesPersons(SP_ID),
 	FOREIGN KEY (PD_ID) REFERENCES Products(PD_ID)
 );
--- INSERT INTO Purchases (purchase_date, CUS_ID, SP_ID, PD_ID) VALUES ('2020-04-20 05:30:21', 1, 1, 1);
+
+INSERT INTO Purchases (purchase_date, CUS_ID, SP_ID, PD_ID) VALUES ('2020-04-20 05:30:21', 1, 1, 1);
 
 
 

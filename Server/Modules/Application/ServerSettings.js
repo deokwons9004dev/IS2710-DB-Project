@@ -55,13 +55,15 @@ exports.PATH = {
     PAGES: {
         API                  : path.join(__dirname, '/../../../Web/apidoc/index.html'),
         INDEX                : path.join(__dirname, '/../../../Web/Index.html'),
+        LOGIN                : path.join(__dirname, '/../../../Web/Login.html'),
         CUSTOMER_MAIN        : path.join(__dirname, '/../../../Web/CustomerMain.html'),
+        EMPLOYEE_MAIN        : path.join(__dirname, '/../../../Web/EmployeeMain.html'),
         
         // CUSTOMER_MYORDERS    : path.join(__dirname, '/../../../Web/CustomerMyOrders.html'),
         // CUSTOMER_CASE_CREATE : path.join(__dirname, '/../../../Web/CustomerCaseCreate.html'),
         // CUSTOMER_CASE        : path.join(__dirname, '/../../../Web/CustomerCase.html'),
         // PRODUCT              : path.join(__dirname, '/../../../Web/Product.html'),
-        // LOGIN                : path.join(__dirname, '/../../../Web/Login.html'),
+        // 
         // REGISTER             : path.join(__dirname, '/../../../Web/Register.html'),
     },
     TEMPLATES: {
@@ -69,6 +71,7 @@ exports.PATH = {
         CUSTOMER_CASE_NEW         : path.join(__dirname, '/../../../Web/CustomerCaseNewTP.html'),
         CUSTOMER_PURCHASE_DETAILS : path.join(__dirname, '/../../../Web/CustomerPurchaseDetailsTP.html'),
         PRODUCT_RESOLUTIONS       : path.join(__dirname, '/../../../Web/ProductResolutionsTP.html'),
+        PRODUCT_COMRES_NEW        : path.join(__dirname, '/../../../Web/ProductCommonResolutionNewTP.html'),
     }
 }
 

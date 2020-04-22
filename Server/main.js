@@ -5,6 +5,7 @@
  * Port         : 7001
  * Secure Port  : 4001 (Not needed if you use Nginx for HTTPS)
  * ApiDoc Build Command: apidoc -i Server/ -o Web/apidoc/ -e Server/node_modules/
+ * ApiDoc Build Command: apidoc -f Server/main.js -c Server/ -e ./.c9/ -t apiDocTemplates/apidoc-template/template/ -o ./Web/apidoc/
 */
 
 // *********************************
@@ -82,16 +83,18 @@ var multer       = require("multer");
 
 
 // *********************************
-// IMPORT REQUEST HANDLERS: NON-HTML GET
+// IMPORT REQUEST HANDLERS: DATA GET
 // *********************************
-
+var GetProductPurchaseData              = require("./Modules/Express/Get/Data/GetProductPurchaseData.js");
 
 
 // *********************************
 // IMPORT REQUEST HANDLERS: HTML GET
 // *********************************
 var GetMainHTML               = require("./Modules/Express/Get/GetMainHTML.js");
+var GetLoginHTML              = require("./Modules/Express/Get/GetLoginHTML.js");
 var GetCustomerMainHTML       = require("./Modules/Express/Get/GetCustomerMainHTML.js");
+var GetEmployeeMainHTML       = require("./Modules/Express/Get/GetEmployeeMainHTML.js");
 var GetAPIHTML                = require("./Modules/Express/Get/GetAPIHTML.js");
 
 // var GetProductHTML            = require("./Modules/Express/Get/GetProductHTML.js");
@@ -102,6 +105,7 @@ var GetCustomerCaseDetailsTemplateHTML     = require("./Modules/Express/Get/GetC
 var GetCustomerCaseNewTemplateHTML         = require("./Modules/Express/Get/GetCustomerCaseNewTemplateHTML.js");
 var GetCustomerPurchaseDetailsTemplateHTML = require("./Modules/Express/Get/GetCustomerPurchaseDetailsTemplateHTML.js");
 var GetProductResolutionsTemplateHTML      = require("./Modules/Express/Get/GetProductResolutionsTemplateHTML.js");
+var GetProductComresNewHTML                = require("./Modules/Express/Get/GetProductComresNewHTML.js");
 
 
 
@@ -142,19 +146,20 @@ var client = null; // Current MySQL Connection.
 var app = express();
 
 // app.set("listenIP"   , '127.0.0.1');   // For Live Preview inside cloud9.
-app.set("listenIP"   , '0.0.0.0');   // For Live Preview inside cloud9.
+// app.set("listenIP"   , '0.0.0.0');   // For Live Preview inside cloud9.
 // app.set("listenIP"   , '3.135.64.50'); // For sharing server app with public internet.
 // app.set("listenIP"   , '3.136.229.81'); // For sharing server app with public internet (using elastic IP).
-// app.set("listenIP"   , '172.31.25.127'); // For sharing server app with public internet (using private IP)
+app.set("listenIP"   , '172.31.20.148'); // For sharing server app with public internet (using private IP)
 
 // app.set("port"       , 80);
+// app.set("port"       , 3000);
 app.set("port"       , 8080);
-app.set("port"       , 8081);
 app.set("port_secure", 4001); // Inactive.
 
 app.set('trust proxy', 1);
 
-var server = http.createServer(app).listen(app.get('port'), app.get('listenIP'), async function () {
+var server = http.createServer(app).listen(app.get('port'), async function () {
+// var server = http.createServer(app).listen(app.get('port'), app.get('listenIP'), async function () {
 
 	// // (LOCK) Initialize master mutex lock.
 	// SVM.initMasterLock();
@@ -300,6 +305,17 @@ app.use('/api'      ,serveStatic(path.join(__dirname, '/../Web/apidoc')));
 app.get("/", function (req, res) { GetMainHTML(req, res); });
 
 /**
+ * @api {get} /login /login
+ * @apiDescription Requests login page for both customer and employee.
+ * 
+ * @apiName    GetLoginHTML
+ * @apiGroup   GET_HTML
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/login", function (req, res) { GetLoginHTML(req, res); });
+
+/**
  * @api {get} /customer /customer
  * @apiDescription Requests main page for logged in customer.<br />
  * This page should show at least the following:
@@ -314,6 +330,17 @@ app.get("/", function (req, res) { GetMainHTML(req, res); });
  * @apiSuccess {String} HTML data of the page.
  */
 app.get("/customer", function (req, res) { GetCustomerMainHTML(req, res); });
+
+/**
+ * @api {get} /employee /employee
+ * @apiDescription Requests main page for logged in employee.
+ * 
+ * @apiName    GetEmployeeMainHTML
+ * @apiGroup   GET_HTML
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/employee", function (req, res) { GetEmployeeMainHTML(req, res); });
 
 /**
  * @api {get} /api /api
@@ -391,6 +418,17 @@ app.get("/customer/purchase/details", function (req, res) { GetCustomerPurchaseD
  * @apiSuccess {String} HTML data of the page.
  */
 app.get("/product/resolutions", function (req, res) { GetProductResolutionsTemplateHTML(req, res); });
+/**
+ * @api {get} /product/comres/new /product/comres/new
+ * 
+ * @apiDescription Requests a product's new common resolution posting template HTML page.
+ * 
+ * @apiName    GetProductComresNewHTML
+ * @apiGroup   GET_TEMPLATE_HTML
+ * @apiVersion 1.0.0
+ * @apiSuccess {String} HTML data of the page.
+ */
+app.get("/product/comres/new", function (req, res) { GetProductComresNewHTML(req, res); });
 
 
 
@@ -398,21 +436,140 @@ app.get("/product/resolutions", function (req, res) { GetProductResolutionsTempl
 // *********************************
 // GET REQUESTS (Data)
 // *********************************
+/**
+ * @apiDefine GET_DATA Get (Data)
+ * GET requests for non-HTML data only.
+ */
+ 
+/**
+ * @api {get} /purchase/details/:PUR_ID /purchase/details/:PUR_ID
+ * 
+ * @apiDescription Requests information about a customer's product purchase data.
+ * 
+ * @apiParam {Number} PUR_ID The PK of each Purchases table row.
+ * @apiParamExample {Number} Request-Example:
+ *		{
+ *			PUR_ID: 12345
+ *		}
+ * 
+ * @apiError REQUEST_PARAM_NOT_FOUND    The <code>PUR_ID</code> of the purchase was not found.
+ * @apiError REQUEST_PARAM_INVALID_TYPE The <code>PUR_ID</code> is not a number type.
+ * @apiError DB_PURCHASES_QUERY_FAIL    Failed to query the Purchases table.
+ * @apiError DB_SALESPERSONS_QUERY_FAIL Failed to query the SalesPersons table.
+ * @apiError DB_PRODUCTS_QUERY_FAIL     Failed to query the Products table.
+ * @apiErrorExample {json} Error-Response:
+ *		HTTP/1.1 404 Not Found
+ *		{
+ *			"error": "REQUEST_PARAM_NOT_FOUND"
+ *		}
+ * 
+ * @apiSuccess {Object} PurchaseDetails                     All relevent information about the purchase made by the customer.
+ * @apiSuccess {String} PurchaseDetails.purchaseDate        DateTime of the purcahse.
+ * @apiSuccess {Number} PurchaseDetails.CustomerID          (PK) Unique identifier of the purchased customer.
+ * @apiSuccess {String} PurchaseDetails.SalesPersonName     Name of the sales person who sold the product..
+ * @apiSuccess {String} PurchaseDetails.SalesPersonAddress  Address of the office that the sales person works in,
+ * @apiSuccess {String} PurchaseDetails.SalesPersonEmail    Email address of the sales person.
+ * @apiSuccess {String} PurchaseDetails.SalesPersonjob      Job title of the sales person.
+ * @apiSuccess {String} PurchaseDetails.ProductID           (PK) Unique identifier of the purchased product.
+ * @apiSuccess {String} PurchaseDetails.ProductName         Name of the purchased product.
+ * @apiSuccess {String} PurchaseDetails.ProductDescription  Description of the product.
+ * @apiSuccess {Number} PurchaseDetails.ProductPrice        Price of the product.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *		HTTP/1.1 200 OK
+ *		{
+ *			purchaseDate       : "2020-04-20 03:40 PM",
+ *			CustomerID         : 707,
+ *			SalesPersonName    : "James Smith",
+ *			SalesPersonAddress : "5508 Walnut St, Pittsburgh, PA 15232",
+ *			SalesPersonEmail   : "james123@company.com",
+ *			SalesPersonjob     : "Regional Manager",
+ *			ProductID          : 119283,
+ *			ProductName        : "TPLink Wireless Router T20",
+ *			ProductDescription : "- JD Power Award ---Highest in customer...",
+ *			ProductPrice       : 99
+ *		}
+ * 
+ * 
+ * @apiExample {curl} Example usage:
+ *		GET http://3.23.28.11/product/purchase/1 OR
+ *		curl -i http://3.23.28.11/product/purchase/1 OR
+ *		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="UTF-8">
+				<title></title>
+				<script
+					src="https://code.jquery.com/jquery-1.12.4.min.js"
+					integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+					crossorigin="anonymous"></script>
+				<script>
+					$(document).ready(function () {
+						$.ajax({
+							method: 'get',
+							url: 'http://3.23.28.11/product/purchase/1',
+							success: function (data, textStatus, jqXHR) { 
+								$( "#result" ).html( data );
+							},
+							dataType: 'json'
+						});
+					})
+				</script>
+			</head>
+			<body>
+				<p id="result"></p>
+			</body>
+		</html>
+ * 
+ * @apiName    GetProductPurchaseData
+ * @apiGroup   GET_DATA
+ * @apiVersion 1.0.0
+ */
+app.get("/product/purchase/:PUR_ID", function (req, res) { GetProductPurchaseData(req, res, client); });
+
+
+app.get("/customer/search/:CUS_ID", function (req, res) { (req, res, client); });
+app.get("/product/search/:PD_ID", function (req, res) { (req, res, client); });
+app.get("/salesperson/search/:SP_ID", function (req, res) { (req, res, client); });
+app.get("/employee/search/:EMP_ID", function (req, res) { (req, res, client); });
+app.get("/comres/search/:COMRES_ID", function (req, res) { (req, res, client); });
+app.get("/case/search/:CAS_ID", function (req, res) { (req, res, client); });
+app.get("/case/comment/search/:CMT_ID", function (req, res) { (req, res, client); });
+
+app.get("/logout", function (req, res) { (req, res, client); });
+
 
 
 // *********************************
 // POST REQUESTS (General)
 // *********************************
 
+// A customer buys a product.
+app.post("/product/purchase", function (req, res) { (req, res, client); });
+
+// An employee or customer posts a comment about a case.
+app.post("/case/comment/post", function (req, res) { (req, res, client); });
+
+// An employee or customer posts a common resolution about a product.
+app.post("/product/comres/post", function (req, res) { (req, res, client); });
+
 
 // *********************************
 // POST REQUESTS (Search)
 // *********************************
+// An employee searches cases.
+app.post("employee/search/case", function (req, res) { (req, res, client); });
+app.post("employee/search/customer", function (req, res) { (req, res, client); });
+app.post("employee/search/comres", function (req, res) { (req, res, client); });
+
+
 
 
 // *********************************
 // POST REQUESTS (Aggregation)
 // *********************************
+// An employee makes an aggregation query request on the cases.
+app.post("employee/agg/case", function (req, res) { (req, res, client); });
 
 
 /**

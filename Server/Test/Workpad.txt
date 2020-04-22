@@ -8,10 +8,110 @@ Elastic IP Address: 3.136.229.81
 NOTE: The instance's public IP address might change anytime the instance restarts.
 
 
+<< Our Updated (Final) EC2 Information >>
+
+Instance ID        : i-08fb56b94251018c6
+Private IP Address : 172.31.20.148 (ip-172-31-20-148.us-east-2.compute.internal)
+Subnet ID          : subnet-611b2f1b
+Elastic IP Address : 3.136.229.81 (ec2-3-23-28-11.us-east-2.compute.amazonaws.com)
+
+- Now with an elastic (static) IP set for our EC2 environment, we can access our project with either:
+    - http://3.136.229.81 OR
+    - http://ec2-3-23-28-11.us-east-2.compute.amazonaws.com
+
+Steps:
+1. First, Go to our Security groups (launch-wizard-1) Management Console and set the following inbound rules:
+    - Allow HTTP (TCP) Port 80 from all IPv4 addresses (0.0.0.0/0)
+    - Allow HTTP (TCP) Port 80 from all IPv6 addresses (::/0)
+    - Allow SSH (TCP) Port 22 from all IPv4 addresses (0.0.0.0/0)
+    - (Optional) Allow HTTPS (TCP) Port 443 from all IPv4 addresses (0.0.0.0/0)
+    - (Optional) Allow HTTPS (TCP) Port 443 from all IPv46addresses (::/0)
+
+2. Then, go to the Network ACL Management Console and also set the following inbound rules:
+    - Allow HTTP (TCP) Port 80 from all IPv4 addresses
+    - Allow SSH (TCP) Port 22 from all IPv4 addresses
+    - (Optional) Allow HTTPS (TCP) Port 443 from all IPv4 addresses
+    - (Optional) Allow HTTP (TCP) Ports 8080 - 8082 from all IPv4 addresses
+    - (Optional) Allow HTTP (TCP) Port 8443 from all IPv4 addresses
+
+2. In our C9 environment, install nginx (a reverse proxy) to allow the public IP traffic to be handled by our NodeJS server running on the private IP.
+    - $ sudo apt-get install nginx
+    - Once nginx is installed, it will automatically start its service.
+    - In /etc/nginx/sites-enabled, remove the default routing configuration.
+    - In /etc/nginx/sites-enabled, create a file called "IS2710Server" and paste the routing code as below and save.
+        ```
+        server {
+        	listen 172.31.20.148:80 default_server;
+        
+        	location / {
+        		proxy_pass http://0.0.0.0:8080;
+        		proxy_redirect off;
+        		proxy_set_header Host $http_host;
+        		proxy_set_header X-Real-IP $remote_addr ;
+        		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for ;
+        		proxy_set_header X-Forwarded-Proto $scheme;
+        	}
+        }
+        ```
+    - Check any syntax errors with 
+        $ sudo nginx -t
+    - Then reload or restart the nginx service
+        # sudo service nginx restart
+    - What's happening is that our EC2's public, elastic IP (3.23.28.11) already 
+      has a translation to our private IP (172.31.20.148), but only maps http://3.23.28.11:80 -> http://172.31.20.148:80.
+      Then Nginx will take that traffic and pass it from http://172.31.20.148:80 -> http://0.0.0.0:8080, where our NodeJS application is running.
+      Then, while our NodeJS server is running, we can open any browser and simply 
+      type 3.23.28.11 to the address bar and it will finally redirect the traffic to our NodeJS server app.
+
+
+
+
+<< EC2 Account Information >>
+USERNAME | PASSWORD
+
+root:russ
+
+GUIDE: https://forums.aws.amazon.com/thread.jspa?threadID=86876
+
+
+<< AWS Session Manager Installation >>
+GUIDE: https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-macos
+GUIDE: https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-verify
+
+<< AWS Command Line Interface Installation >>
+GUIDE: https://aws.amazon.com/cli/
+
+
+
+
+<< AWS EC2 Port Forwarding Using Session Manager and AWS CLI >>
+GUIDE: https://aws.amazon.com/blogs/aws/new-port-forwarding-using-aws-system-manager-sessions-manager/
+
+# find the instance ID based on Tag Name
+INSTANCE_ID=$(aws ec2 describe-instances \
+               --filter "Name=tag:Name,Values=CodeStack/NewsBlogInstance" \
+               --query "Reservations[].Instances[?State.Name == 'running'].InstanceId[]" \
+               --output text)
+               
+# create the port forwarding tunnel
+aws ssm start-session --target i-08fb56b94251018c6 \
+                       --document-name AWS-StartPortForwardingSession \
+                       --parameters '{"portNumber":["80"],"localPortNumber":["8080"]}'
+
+Starting session with SessionId: sst-00xxx63
+Port 9999 opened for sessionId sst-00xxx63
+Connection accepted for session sst-00xxx63.
+
+
+
+
 
 << Sharing project on public internet >>
 GUIDE: https://docs.aws.amazon.com/cloud9/latest/user-guide/app-preview.html#app-preview-share
 
+
+<< AWS Network Access Control List (ACL) >>
+GUIDE: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
 
 
 << Aggregate queries for "Case closed by employees (ordered by largest)" >>
