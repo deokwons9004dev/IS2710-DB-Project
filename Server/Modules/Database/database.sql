@@ -12,6 +12,7 @@ CREATE TABLE Customers (
 	pstext  varchar(500) NOT NULL,
 	address varchar(500) NOT NULL,
 	income  int          NOT NULL,
+	company varchar(500),
 	PRIMARY KEY (CUS_ID)
 );
 -- INSERT INTO Customers (name, email, pstext, address, income) VALUES ('David', 'deokwons9004@gmail.com', 'pass1234', 'home', 300);
