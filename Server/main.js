@@ -2,7 +2,7 @@
  * INFSCI 2710 Project Server Application
  * Created By   : David Song (deokwons9004dev@gmail.com)
  * Version      : 1.0.0
- * Port         : 8080
+ * Port         : 8002
  * Secure Port  : 4001 (Not needed if you use Nginx for HTTPS)
  * ApiDoc Build Command: apidoc -i Server/ -o Web/apidoc/ -e Server/node_modules/
  * ApiDoc Build Command: apidoc -f Server/main.js -c Server/ -e ./.c9/ -t apiDocTemplates/apidoc-template/template/ -o ./Web/apidoc/
@@ -194,8 +194,8 @@ var app = express();
 
 // app.set("port"       , 80);
 // app.set("port"       , 3000);
-app.set("port"       , 8080);
-app.set("port_secure", 4001); // Inactive.
+app.set("port"       , 8002);
+//app.set("port_secure", 4001); // Inactive.
 
 app.set('trust proxy', 1);
 
@@ -234,7 +234,7 @@ var server = http.createServer(app).listen(app.get('port'), async function () {
 	}
 	info('Client now using Database (%s).', DEF.MYSQL.DB_NAME);
 
-	success('Server has arrived.');
+	success('Server has arrived @ port ' + app.get('port'));
 });
 
 /* Init Express Middleware */
