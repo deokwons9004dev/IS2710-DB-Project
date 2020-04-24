@@ -4,8 +4,99 @@
 	<meta charset="utf-8">
 	<title>Customer Main</title>
 
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/global.css" />
+    
+    <!-- Downloaded Scripts -->
+    
+    <!-- Browser Modules -->
+    <script src="/js/browser/jquery-1.9.1.min.js"></script>
+    <script src="/js/browser/moment.js"></script>
+    
+    <!-- Custom Library/Helpers -->
+    <script src="/js/tools/CookieTools.js"></script>
+    <script src="/js/tools/MiscTools.js"></script>
+    
+    <!-- Page Specific Init/Handlers -->
+    <script src="/js/pagehandlers/CustomerMain.js"></script>
+
 </head>
 <body>
-    <h4>This is the main page after a customer has logged in.</h4>
+    <!-- Top Nav Bar -->
+    <div class="navbar">
+        <div class="navbar-title-left">
+            <p>Market</p>
+        </div>
+        <div class="navbar-title-middle">
+            <p>Customer Main Page</p>
+        </div>
+        <div class="navbar-account">
+            <p id="account_type_text"></p>
+            <p id="account_name_text"></p>
+        </div>
+        <div class="navbar-buttonbox">
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- My Info Table Box -->
+        <div id="my_info_box" class="table-div">
+            <p class="flat-ui-table-title">My Info</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th> 
+                    <th>Address</th>
+                    <th>Income</th>
+                    <th>Company</th>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- My Purchases Table Box -->
+        <div id="my_purchases_box" class="table-div">
+            <p class="flat-ui-table-title">My Purchases</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Purchase #</th>
+                    <th>Purchase Item</th> 
+                    <th>Sold By</th>
+                    <th>Details</th>
+                    <th>Case</th>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- My Cases Table Box -->
+        <div id="my_cases_box" class="table-div">
+            <p class="flat-ui-table-title">My Cases</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Case #</th>
+                    <th>Case Item</th> 
+                    <th>Case Opened</th>
+                    <th>Case Status</th>
+                    <th>Details</th>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- All Products Table Box -->
+        <div id="products_box" class="table-div">
+            <p class="flat-ui-table-title">All Products</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th> 
+                    <th>Price</th>
+                    <th>Buy</th>
+                    <th>Common Resolutions</th>
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

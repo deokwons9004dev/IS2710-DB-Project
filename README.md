@@ -1,29 +1,64 @@
 ## INFSCI 2710 - Database Management Project
 
-##### Usgae of this README
-This will include your typical README content found in most github repos, where 
-you:
-1. introduce the project.
-2. explain the technical setup enviroment of this project, 
-3. provide various demo code on how we were able to run the server.
-4. motives and assumptions behind our implementation of the SQL file
-5. how to web service works in general (customer's interaction with the site and employees interaction with the site)
+### Introduction
+This project simulates a basic online market place demonstrating the interactions
+between constomers and employees. It is a web service built using NodeJS, MySQL,
+and front-end technologies (HTML, Jquery, etc). 
 
-##### Notes on commenting on the README file.
-Please feel free to add non-compiling comments in the README file so people can 
-review without creating uncessary output to the README. For example, if you do 
-not like the way something is proposed in the READM/WORKPAD.md, simply add the 
-comment like below the revelent content (see README.md file to see format of comment).
+### The Team
+- Deokwon Song (deokwons9004dev@gmail.com)
+- Dominick Caimano (doc23@pitt.edu)
+- Nishchal Nigam (nin34@pitt.edu)
 
-<!---
-    COMMENT by Dominic:
-    - Who should decide which type of user gets to open cases, the user, or the emplyee? 
-    - <INSERT_MORE_ARGUMENT_HERE>
--->
+### Development Environment
+The project was developed with AWS Cloud9 IDE, which is a cloud based real-time 
+collaboration IDE running on an AWS EC2 virtual machine with Ubuntu pre-installed.
 
-##### Any in-progress planning should be written under the WORKPAD.md
-* This is like a scratch pad of implementation details and where most of the structuring and discussion will take place. 
-* I highly suggest we use to the WORKPAD.md to do most of our implementation discussion and work with that during development. 
-* Only when we feel confident about the state of our project should we use the contents of the WORKPAD.md to fill in the README, which is what the prof will most likely read.
+### Pre-Setup
+MySQL has a mode called __ONLY_FULL_GROUP_BY__ which doesn't allow nonaggregated 
+columns that are not named in the GROUP BY caluse to be selected. Since we need 
+this feature to work for our aggregate features, I permanently disabled this 
+feature from our current installation of MySQL.
 
-		
+Here are the steps I took to disable it (so we can re-enable when needed).
+
+1. First identify that that __ONLY_FULL_GROUP_BY__ SQL mode is enabled in our MySQL installation.
+
+    ```sql
+    mysql> SELECT @@GLOBAL.sql_mode;
+    ```
+
+    | @@GLOBAL.sql_mode |
+    | ------------|
+    | ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION |
+
+2. Then copy all of the modes from the resulting table except __ONLY_FULL_GROUP_BY__.
+
+    ```
+    STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+    ```
+3. Then I created a MySQL configuration file at (__/etc/mysql/conf.d/disable_strict_mode.cnf__).
+4. And the pasted the remaining options above into the file as such:
+
+    ```
+    [mysqld]
+    sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+    ```
+5. And a simple MySQL server service restart is what solved the problem.
+    ```bash
+    $ sudo service mysql restart
+    ```
+
+### Testing
+You can download the zip file of this repository, and run the server with NodeJS.
+
+```bash
+$ cd Server
+$ node main.js
+```
+
+When testing locally, make sure to have both NodeJS and MySQL installed.
+
+### More Information
+We have documented a lot of our internal implementation details in a final report, 
+which you can find under the Documents folder.

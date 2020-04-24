@@ -2,10 +2,42 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Post New ComRes Template</title>
+	<title>Common Resolutions</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/global.css" />
+    
+    <!-- Downloaded Scripts -->
+    
+    <!-- Browser Modules -->
+    <script src="/js/browser/jquery-1.9.1.min.js"></script>
+    <script src="/js/browser/moment.js"></script>
+    
+    <!-- Custom Library/Helpers -->
+    <script src="/js/tools/CookieTools.js"></script>
+    <script src="/js/tools/MiscTools.js"></script>
+    
+    <!-- Page Specific Init/Handlers -->
+    <script src="/js/pagehandlers/CommonRes.js"></script>
 
 </head>
 <body>
+    <!-- Top Nav Bar -->
+    <div class="navbar">
+        <div class="navbar-title-left">
+            <p>Market</p>
+        </div>
+        <div class="navbar-title-middle">
+            <p>Employee Main Page</p>
+        </div>
+        <div class="navbar-account">
+            <p id="account_type_text"></p>
+            <p id="account_name_text"></p>
+        </div>
+        <div class="navbar-buttonbox">
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
     <h4>This is the template page for when a customer or an employee posts a new common resolution for a product.</h4>
 </body>
 </html>

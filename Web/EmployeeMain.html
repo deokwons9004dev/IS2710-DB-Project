@@ -4,8 +4,144 @@
 	<meta charset="utf-8">
 	<title>Employee Main</title>
 
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/global.css" />
+    
+    <!-- Downloaded Scripts -->
+    
+    <!-- Browser Modules -->
+    <script src="/js/browser/jquery-1.9.1.min.js"></script>
+    <script src="/js/browser/moment.js"></script>
+    
+    <!-- Custom Library/Helpers -->
+    <script src="/js/tools/CookieTools.js"></script>
+    <script src="/js/tools/MiscTools.js"></script>
+    
+    <!-- Page Specific Init/Handlers -->
+    <script src="/js/pagehandlers/EmployeeMain.js"></script>
+
 </head>
 <body>
-    <h4>This is the main page after an employee has logged in.</h4>
+    <!-- Top Nav Bar -->
+    <div class="navbar">
+        <div class="navbar-title-left">
+            <p>Market</p>
+        </div>
+        <div class="navbar-title-middle">
+            <p>Employee Main Page</p>
+        </div>
+        <div class="navbar-account">
+            <p id="account_type_text"></p>
+            <p id="account_name_text"></p>
+        </div>
+        <div class="navbar-buttonbox">
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+    
+    
+    <div class="container">
+        
+        <!-- My Info Table Box -->
+        <div id="my_info_box" class="table-div">
+            <p class="flat-ui-table-title">My Info</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th> 
+                    <th>Address</th>
+                    <th>Phone</th>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Cases -->
+        <div id="cases_box" class="table-div">
+            <p class="flat-ui-table-title">Cases Summary</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Case#</th>
+                    <th>Status</th> 
+                    <th>Case Opened</th>
+                    <th>Case Closed</th>
+                    <th>Purchase #</th>
+                    <th>Assigned Employee</th>
+                    <th><a href="/product/resolutions">Common Resolution</a></th>
+                </tr>
+            </table>
+        </div>
+        
+        
+        <!--Unassigned Cases -->
+        <div id="un_cases_box" class="table-div">
+            <p class="flat-ui-table-title">Unassigned Cases</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Case#</th>
+                    <th>Case Opened</th>
+                    <th>Assign To</th>
+                    <th>Common Resolution</th>
+                </tr>
+            </table>
+        </div>
+        
+        <select id="search_selection">
+            <option value="status">Search Cases by status</option>
+            <option value="timeframe">Search Cases by timeframe</option>
+            <option value="customerName">Search Customers by name</option>
+            <option value="customerEmail">Search Customers by email</option>
+            <option value="productName">Search Common Resolutions by product name</option>
+        </select>
+        <input id="search_term" type="text">
+        <button id="search_button">Search</button>
+        
+        <!--Search Cases table -->
+        <div id="search_cases_box" class="table-div">
+            <p class="flat-ui-table-title">Search Results</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Case#</th>
+                    <th>Case summary</th>
+                    <th>Case status</th>
+                    <th>Case opentime</th>
+                    <th>Case description</th>
+                    <th>Case closetime</th>
+                    <th>Purchase #</th>
+                    <th>Assigned Employee #</th>
+                    <th>Common Resolution #</th>
+                </tr>
+            </table>
+        </div>
+        
+        
+        
+        
+        <select id="agg_selection">
+            <option value="product">Aggregate by product</option>
+            <option value="closed">Aggregate by product</option>
+            <option value="customer">Aggregate by product</option>
+            <option value="customer_company">Aggregate by product</option>
+        </select>
+        <button id="agg_button">Get Aggregated Results</button>
+        
+        <!--Agg Cases table -->
+        <div id="search_cases_box" class="table-div">
+            <p class="flat-ui-table-title">Search Results</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Case#</th>
+                    <th>Case summary</th>
+                    <th>Case status</th>
+                    <th>Case opentime</th>
+                    <th>Case description</th>
+                    <th>Case closetime</th>
+                    <th>Purchase #</th>
+                    <th>Assigned Employee #</th>
+                    <th>Common Resolution #</a></th>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
 </body>
 </html>

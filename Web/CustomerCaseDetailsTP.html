@@ -2,10 +2,115 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Customer Case Details Template</title>
+	<title>Case Details</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/global.css" />
+    
+    <!-- Downloaded Scripts -->
+    
+    <!-- Browser Modules -->
+    <script src="/js/browser/jquery-1.9.1.min.js"></script>
+    <script src="/js/browser/moment.js"></script>
+    
+    <!-- Custom Library/Helpers -->
+    <script src="/js/tools/CookieTools.js"></script>
+    <script src="/js/tools/MiscTools.js"></script>
+    
+    <!-- Page Specific Init/Handlers -->
+    <script src="/js/pagehandlers/CustomerCaseDetails.js"></script>
 
 </head>
 <body>
-    <h4>This is the template page for the case details.</h4>
+    <!-- Top Nav Bar -->
+    <div class="navbar">
+        <div class="navbar-title-left">
+            <p>Market</p>
+        </div>
+        <div class="navbar-title-middle">
+            <p>Case Details</p>
+        </div>
+        <div class="navbar-account">
+            <p id="account_type_text"></p>
+            <p id="account_name_text"></p>
+        </div>
+        <div class="navbar-buttonbox">
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        
+        <div id="case_status_box">
+            <div class="status-mini-box">
+                <p class="status-title">Case #</p>
+                <p class="status-value" id="status_case_id"></p>
+            </div>
+            <div class="status-mini-box">
+                <p class="status-title">Purchase #</p>
+                <p class="status-value" id="status_purchase_id"></p>
+            </div>
+            <div class="status-mini-box" id="status_opentime_box">
+                <p class="status-title">Case Opened</p>
+                <p class="status-value" id="status_case_opentime"></p>
+            </div>
+            <div class="status-mini-box" id="status_status_box">
+                <p class="status-title">Case Status</p>
+                <p class="status-value" id="status_case_status"></p>
+            </div>
+            <div class="status-mini-box" id="status_closetime_box">
+                <p class="status-title">Case Closed</p>
+                <p class="status-value" id="status_case_closetime"></p>
+            </div>
+            <div class="status-mini-box" id="status_emp_box">
+                <p class="status-title">Assgined Employee</p>
+                <p class="status-value" id="status_emp_name"></p>
+            </div>
+        </div>
+        <div id="case_details_box">
+            <div id="product_box">
+                <p class="detail-title">Purchased Product</p>
+                <p id="details_product_name" class="detail-value"></p>
+            </div>
+            <div id="case_box">
+                <p class="detail-title">Case Summary</p>
+                <p class="detail-value" id="case_summary"></p>
+                <p class="detail-title">Case Details</p>
+                <p class="detail-value"id="case_description"></p>
+            </div>
+        </div>
+        <div id="case_chat_box">
+            <div id="view_box">
+                
+                
+            </div>
+            <div id="input_box">
+                <textarea id="comment_textarea"></textarea>
+                <button id="comment_submit_button">Comment</button>
+            </div>
+        </div>
+        
+        <!--<div id="new_case_box">-->
+        <!--    <p id="title">Open a new case</p>-->
+            
+        <!--    <p class="input-label">Item</p>-->
+        <!--    <input id="product_name_input" class="input input-disabled" type="text" disabled/>-->
+            
+        <!--    <p class="input-label">Customer</p>-->
+        <!--    <input id="customer_name_input" class="input input-disabled" type="text" disabled/>-->
+            
+        <!--    <p class="input-label">Case Summary</p>-->
+        <!--    <p class="input-label-subtext">Please provide a brief summary of the issue.</p>-->
+        <!--    <input id="case_summary_input" class="input" type="text" name=""/>-->
+            
+        <!--    <p class="input-label">Case Description</p>-->
+        <!--    <p class="input-label-subtext">Please describe the issue in detail.</p>-->
+        <!--    <textarea id="case_desc_textarea" class="textarea" type="text" name=""></textarea>-->
+            
+        <!--    <button id="case_create_button" class="button button-black">Create Case</button>-->
+        <!--    <button id="cancel_button"      class="button button-grey">Cancel</button>-->
+        <!--</div>-->
+    </div>
 </body>
 </html>

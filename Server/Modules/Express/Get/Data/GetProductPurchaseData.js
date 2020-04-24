@@ -71,7 +71,7 @@ module.exports = async function getMain (req, res, client) {
 
     // Get purcahse row from pur_id,
     var purRowRes = await t_db.getPurchaseRowByPK_p(purID, client);
-    if (purRowRes.errorList.length > 0) {
+    if (purRowRes.errorList.length > 0 || purRowRes.purchaseRow == null) {
         error('No purcahse with given key %s was found in Purcahses table.', purID);
         res.send({ error: 'DB_PURCHASES_QUERY_FAIL' });
         return;
@@ -80,7 +80,7 @@ module.exports = async function getMain (req, res, client) {
     
     // Get SalesPerson row from sp_id,
     var salesRowRes = await t_db.getSalesPersonRowByPK_p(purRow.SP_ID, client);
-    if (salesRowRes.errorList.length > 0) {
+    if (salesRowRes.errorList.length > 0 || salesRowRes.salesPersonRow == null) {
         error('No salesperson with given key %s was found in SalesPersons table..', purRow.SP_ID);
         res.send({ error: 'DB_SALESPERSONS_QUERY_FAIL' });
         return;
@@ -89,7 +89,7 @@ module.exports = async function getMain (req, res, client) {
     
     // Get Products row from pd_id.
     var productRowRes = await t_db.getProductRowByPK_p(purRow.PD_ID, client);
-    if (productRowRes.errorList.length > 0) {
+    if (productRowRes.errorList.length > 0 || productRowRes.productRow == null) {
         error('No product with given key %s was found in Products table..', purRow.PD_ID);
         res.send({ error: 'DB_PRODUCTS_QUERY_FAIL' });
         return;

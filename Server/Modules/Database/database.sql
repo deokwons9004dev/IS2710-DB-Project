@@ -1,6 +1,6 @@
--- create database if not exists IS2710DB;
-drop database if exists IS2710DB;
-create database IS2710DB;
+create database if not exists IS2710DB;
+-- drop database if exists IS2710DB;
+-- create database IS2710DB;
 use IS2710DB;
 
 -- Login based on unique email and password hash (bcrypt).
@@ -12,6 +12,7 @@ CREATE TABLE Customers (
 	pstext  varchar(500) NOT NULL,
 	address varchar(500) NOT NULL,
 	income  int          NOT NULL,
+	company varchar(500)
 	PRIMARY KEY (CUS_ID)
 );
 
@@ -20,7 +21,7 @@ INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jason', 'd
 INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Mike', 'mike123@gmail.com', 'pass1234', 'work', 500);
 INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Jake', 'jake123@gmail.com', 'pass1234', 'work', 10);
 INSERT INTO Customers (name, email, pstext, address, income) VALUES ('Alice', 'alice123@gmail.com', 'pass1234', 'work', 1000);
-
+	
 
 
 -- Searching would be done by name (UNIQUE not required.)
@@ -164,3 +165,14 @@ CREATE TABLE CaseComments (
 	FOREIGN KEY (EMP_ID) REFERENCES Employee(EMP_ID),
 	FOREIGN KEY (CUS_ID) REFERENCES Customers(CUS_ID)
 );
+
+
+-- Alterations to tables.
+ALTER TABLE Customers ADD INDEX CUS_IDX (name);
+ALTER TABLE Products ADD INDEX PD_IDX (name);
+ALTER TABLE SalesPersons ADD INDEX SP_IDX (name);
+ALTER TABLE Employee ADD INDEX EMP_IDX (name);
+ALTER TABLE Purchases ADD INDEX PUR_IDX (purchase_date);
+ALTER TABLE CommonResolutions ADD INDEX COMRES_IDX (name);
+ALTER TABLE Cases ADD INDEX CAS_IDX (status);
+ALTER TABLE CaseComments ADD INDEX CASCMT_IDX (ctime);

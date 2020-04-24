@@ -2,10 +2,66 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Customer New Case Template</title>
+	<title>Open New Case</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/global.css" />
+    
+    <!-- Downloaded Scripts -->
+    
+    <!-- Browser Modules -->
+    <script src="/js/browser/jquery-1.9.1.min.js"></script>
+    <script src="/js/browser/moment.js"></script>
+    
+    <!-- Custom Library/Helpers -->
+    <script src="/js/tools/CookieTools.js"></script>
+    <script src="/js/tools/MiscTools.js"></script>
+    
+    <!-- Page Specific Init/Handlers -->
+    <script src="/js/pagehandlers/CustomerCaseNew.js"></script>
 
 </head>
 <body>
-    <h4>This is the template page for opening a new case from the customer.</h4>
+    <!-- Top Nav Bar -->
+    <div class="navbar">
+        <div class="navbar-title-left">
+            <p>Market</p>
+        </div>
+        <div class="navbar-title-middle">
+            <p>Open New Case</p>
+        </div>
+        <div class="navbar-account">
+            <p id="account_type_text"></p>
+            <p id="account_name_text"></p>
+        </div>
+        <div class="navbar-buttonbox">
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        
+        <div id="new_case_box">
+            <p id="title">Open a new case</p>
+            
+            <p class="input-label">Item</p>
+            <input id="product_name_input" class="input input-disabled" type="text" disabled/>
+            
+            <p class="input-label">Customer</p>
+            <input id="customer_name_input" class="input input-disabled" type="text" disabled/>
+            
+            <p class="input-label">Case Summary</p>
+            <p class="input-label-subtext">Please provide a brief summary of the issue.</p>
+            <input id="case_summary_input" class="input" type="text" name=""/>
+            
+            <p class="input-label">Case Description</p>
+            <p class="input-label-subtext">Please describe the issue in detail.</p>
+            <textarea id="case_desc_textarea" class="textarea" type="text" name=""></textarea>
+            
+            <button id="case_create_button" class="button button-black">Create Case</button>
+            <button id="cancel_button"      class="button button-grey">Cancel</button>
+        </div>
+    </div>
 </body>
 </html>

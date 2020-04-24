@@ -2,10 +2,70 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Customer Purchase Details Template</title>
+	<title>Customer Purchase Details</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/global.css" />
+    
+    <!-- Downloaded Scripts -->
+    
+    <!-- Browser Modules -->
+    <script src="/js/browser/jquery-1.9.1.min.js"></script>
+    <script src="/js/browser/moment.js"></script>
+    
+    <!-- Custom Library/Helpers -->
+    <script src="/js/tools/CookieTools.js"></script>
+    <script src="/js/tools/MiscTools.js"></script>
+    
+    <!-- Page Specific Init/Handlers -->
+    <script src="/js/pagehandlers/CustomerPurchaseDetails.js"></script>
 
 </head>
 <body>
-    <h4>This is the template page for a purchase detail a customer made for a product.</h4>
+        <!-- Top Nav Bar -->
+    <div class="navbar">
+        <div class="navbar-title-left">
+            <p>Market</p>
+        </div>
+        <div class="navbar-title-middle">
+            <p>Customer Main Page</p>
+        </div>
+        <div class="navbar-account">
+            <p id="account_type_text"></p>
+            <p id="account_name_text"></p>
+        </div>
+        <div class="navbar-buttonbox">
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+    
+    
+        <!-- Main Container -->
+    <div class="container">
+        
+        <!-- My Info Table Box -->
+        <div id="my_purchase" class="table-div">
+            <p class="flat-ui-table-title">Purchase Info</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Product Info</th>
+                    <th>Purchase Date</th> 
+                    <th>Purchase Total</th>
+                    <th>Sold By</th>
+                </tr>
+            </table>
+        </div>
+        
+        <div id="sales_team_info" class="table-div">
+            <p class="flat-ui-table-title">Sales Team Contact Info</p>
+            <table class="flat-ui-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Address</th> 
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

@@ -2,7 +2,7 @@
  * INFSCI 2710 Project Server Application
  * Created By   : David Song (deokwons9004dev@gmail.com)
  * Version      : 1.0.0
- * Port         : 7001
+ * Port         : 8080
  * Secure Port  : 4001 (Not needed if you use Nginx for HTTPS)
  * ApiDoc Build Command: apidoc -i Server/ -o Web/apidoc/ -e Server/node_modules/
  * ApiDoc Build Command: apidoc -f Server/main.js -c Server/ -e ./.c9/ -t apiDocTemplates/apidoc-template/template/ -o ./Web/apidoc/
@@ -82,10 +82,6 @@ var multer       = require("multer");
 // var CustomSessionMiddleware = require("./Modules/Middleware/CustomSessionMiddleware.js");
 
 
-// *********************************
-// IMPORT REQUEST HANDLERS: DATA GET
-// *********************************
-var GetProductPurchaseData              = require("./Modules/Express/Get/Data/GetProductPurchaseData.js");
 
 
 // *********************************
@@ -97,10 +93,10 @@ var GetCustomerMainHTML       = require("./Modules/Express/Get/GetCustomerMainHT
 var GetEmployeeMainHTML       = require("./Modules/Express/Get/GetEmployeeMainHTML.js");
 var GetAPIHTML                = require("./Modules/Express/Get/GetAPIHTML.js");
 
-// var GetProductHTML            = require("./Modules/Express/Get/GetProductHTML.js");
-// var GetCustomerMyOrdersHTML   = require("./Modules/Express/Get/GetCustomerMyOrdersHTML.js");
-// var GetCustomerCaseCreateHTML = require("./Modules/Express/Get/GetCustomerCaseCreateHTML.js");
 
+// *********************************
+// IMPORT REQUEST HANDLERS: HTML TEMPLATE GET
+// *********************************
 var GetCustomerCaseDetailsTemplateHTML     = require("./Modules/Express/Get/GetCustomerCaseDetailsTemplateHTML.js");
 var GetCustomerCaseNewTemplateHTML         = require("./Modules/Express/Get/GetCustomerCaseNewTemplateHTML.js");
 var GetCustomerPurchaseDetailsTemplateHTML = require("./Modules/Express/Get/GetCustomerPurchaseDetailsTemplateHTML.js");
@@ -108,11 +104,56 @@ var GetProductResolutionsTemplateHTML      = require("./Modules/Express/Get/GetP
 var GetProductComresNewHTML                = require("./Modules/Express/Get/GetProductComresNewHTML.js");
 
 
+// *********************************
+// IMPORT REQUEST HANDLERS: DATA GET
+// *********************************
+var GetProductPurchaseData = require("./Modules/Express/Get/Data/GetProductPurchaseData.js");
+var GetCustomerSearchData = require("./Modules/Express/Get/Data/GetCustomerSearchData.js");
+var GetProductSearchData = require("./Modules/Express/Get/Data/GetProductSearchData.js");
+var GetSalesPersonSearchData = require("./Modules/Express/Get/Data/GetSalesPersonSearchData.js");
+var GetEmployeeSearchData = require("./Modules/Express/Get/Data/GetEmployeeSearchData.js");
+var GetComresSearchData = require("./Modules/Express/Get/Data/GetComresSearchData.js");
+var GetCaseSearchData = require("./Modules/Express/Get/Data/GetCaseSearchData.js");
+var GetCaseCommentSearchData = require("./Modules/Express/Get/Data/GetCaseCommentSearchData.js");
+
 
 // *********************************
-// IMPORT REQUEST HANDLERS: POST
+// IMPORT REQUEST HANDLERS: MISC GET
 // *********************************
-// var PostAccountLogin        = require("./Modules/Express/Post/PostAccountLogin.js");
+var GetMyInfo = require("./Modules/Express/Get/Misc/GetMyInfo.js");
+var GetLogout = require("./Modules/Express/Get/Misc/GetLogout.js");
+
+
+
+// *********************************
+// POST REQUESTS (DB Direct Query)
+// *********************************
+var PostDBQuery = require("./Modules/Express/Post/PostDBQuery.js");
+
+
+
+// *********************************
+// POST REQUESTS (General)
+// *********************************
+var PostLogin               = require("./Modules/Express/Post/PostLogin.js");
+var PostProductPurchase     = require("./Modules/Express/Post/PostProductPurchase.js");
+var PostCaseSubmit          = require("./Modules/Express/Post/PostCaseSubmit.js");
+var PostCaseCommentSubmit   = require("./Modules/Express/Post/PostCaseCommentSubmit.js");
+var PostProductComresSubmit = require("./Modules/Express/Post/PostProductComresSubmit.js");
+
+
+// *********************************
+// POST REQUESTS (Search)
+// *********************************
+var PostEmployeeSearchCase     = require("./Modules/Express/Post/PostEmployeeSearchCase.js");
+var PostEmployeeSearchCustomer = require("./Modules/Express/Post/PostEmployeeSearchCustomer.js");
+var PostEmployeeSearchComres   = require("./Modules/Express/Post/PostEmployeeSearchComres.js");
+
+
+// *********************************
+// POST REQUESTS (Aggregation)
+// *********************************
+var PostEmployeeAggCases     = require("./Modules/Express/Post/PostEmployeeAggCases.js");
 
 
 
@@ -149,7 +190,7 @@ var app = express();
 // app.set("listenIP"   , '0.0.0.0');   // For Live Preview inside cloud9.
 // app.set("listenIP"   , '3.135.64.50'); // For sharing server app with public internet.
 // app.set("listenIP"   , '3.136.229.81'); // For sharing server app with public internet (using elastic IP).
-app.set("listenIP"   , '172.31.20.148'); // For sharing server app with public internet (using private IP)
+// app.set("listenIP"   , '172.31.20.148'); // For sharing server app with public internet (using private IP)
 
 // app.set("port"       , 80);
 // app.set("port"       , 3000);
@@ -159,16 +200,12 @@ app.set("port_secure", 4001); // Inactive.
 app.set('trust proxy', 1);
 
 var server = http.createServer(app).listen(app.get('port'), async function () {
-// var server = http.createServer(app).listen(app.get('port'), app.get('listenIP'), async function () {
-
-	// // (LOCK) Initialize master mutex lock.
-	// SVM.initMasterLock();
 
 	// (DB) Initialize Database Connection.
 	client = mysql.createConnection({
 		user              : DEF.MYSQL.ID,
 		password          : DEF.MYSQL.PS,
-		multipleStatements: false
+		multipleStatements: true
 	});
 	SVM.setDatabase(client);
 
@@ -193,92 +230,78 @@ var server = http.createServer(app).listen(app.get('port'), async function () {
 	success('Server has arrived.');
 });
 
-// /* Init SocketIO with Shared Session. This is crucial if you
-//  * want to use the same sessions within SocketIO. */
-// var io = sio.listen(server);
-// io.use(function (socket, next) {
-// 	sessionMiddleWare(socket.request, socket.request.res, next);
-// });
-
 /* Init Express Middleware */
-var ddos = new antiddos({
-	maxcount    : 100,
-	limit       : 80,
-	burst       : 40,
-	maxexpiry   : 20,
-	errormessage: 'Timeout penalty for attempted dos attack.'
-});
-app.use(ddos.express);                                // DDOS protection middleware.
+// var ddos = new antiddos({
+// 	maxcount    : 100,
+// 	limit       : 80,
+// 	burst       : 40,
+// 	maxexpiry   : 20,
+// 	errormessage: 'Timeout penalty for attempted dos attack.'
+// });
+// app.use(ddos.express);                                // DDOS protection middleware.
+
 app.use(bodyParser());                                // POST body parser middleware.
 app.use(cookieParser(DEF.COOKIE.signKeys));           // Cookie parser middleware.
 app.use(multer({ dest: Settings.uploadPath }).any()); // POST file upload middleware.
-// app.use(favicon(path.join(__dirname, '/../Web/img', 'nodelogo.png')));
 
 app.use(function ipwareMiddleware (req, res, next) {
 	var ip_info = ipware(req);
-	// { clientIp: '127.0.0.1', clientIpRoutable: false }
 	next();
 });
-// app.use(sessionMiddleWare); // Attach the session middleware init'ed above.
-// app.use(function requestIPMiddleware (req, res, next) {
-// 	const clientIp = requestIP.getClientIp(req);
-// 	debug(clientIp);
-// 	next();
-// });
 
 
-// app.use('/pages'    ,serveStatic(path.join(__dirname, '/../Web/pages')));
+app.use(session({
+	store: new fileStore({
+		path: '/home/ubuntu/environment/IS2710Sessions'
+	}),
+	secret: 'My Session Secret String',
+	saveUninitialized: false,
+	resave: true,
+	name: 'loginSessionCookie'
+}))
+
+
 app.use('/css'      ,serveStatic(path.join(__dirname, '/../Web/css')));
 app.use('/js'       ,serveStatic(path.join(__dirname, '/../Web/js')));
 app.use('/img'      ,serveStatic(path.join(__dirname, '/../Web/img')));
 app.use('/api'      ,serveStatic(path.join(__dirname, '/../Web/apidoc')));
-// app.use('/download' ,serveStatic(path.join(__dirname, '/../Web/download')));
-
-// app.use(serveStatic(path.join(__dirname, '/../Web'), {
-// 	index     : ['index.html'],
-// 	extensions: ['html', 'htm']
-// }));
-
-/* Session & Cookie Cleaner. This will run before
- * you catch any GET or POST requests. */
-// app.use(function (req, res, next) { CustomSessionMiddleware(req, res, next, client); });
 
 
 // *********************************
 // ERROR HANDLING
 // *********************************
-// process.on('rejectionHandled', function (e) {
-//     error('rejectionHandled:', e);
-// });
-// process.on('uncaughtException', async function (e) {
-//     error('uncaughtException:', e);
-// 	if (e.code && e.code == 'PROTOCOL_CONNECTION_LOST') {
-//
-// 		// Reconnect MySQL client.
-// 		commit('Reconnecting MySQL connection.');
-// 		client = mysql.createConnection({
-// 			user              : DEF.MYSQL.ID,
-// 			password          : DEF.MYSQL.PS,
-// 			multipleStatements: false
-// 		});
-// 		info('MySQL connection established.');
-//
-// 		// (DB) Make client use LonelyDuck DB.
-// 		var useDBResult = await t_db.useDatabase_p(DEF.MYSQL.DB_NAME, client);
-// 		if (useDBResult.errorList.length > 0) {
-// 			error('Failed to make client use DB (%s).', DEF.MYSQL.DB_NAME);
-// 			error(useDBResult.errorList);
-// 			process.exit();
-// 		}
-// 		info('Client now using Database (%s).', DEF.MYSQL.DB_NAME);
-// 	}
-// });
-// process.on('unhandledRejection', function (e) {
-//     error('unhandledRejection:', e);
-// });
-// process.on('warning', function (e) {
-//     error('warning:', e);
-// });
+process.on('rejectionHandled', function (e) {
+    error('rejectionHandled:', e);
+});
+process.on('uncaughtException', async function (e) {
+    error('uncaughtException:', e);
+	if (e.code && e.code == 'PROTOCOL_CONNECTION_LOST') {
+
+		// Reconnect MySQL client.
+		commit('Reconnecting MySQL connection.');
+		client = mysql.createConnection({
+			user              : DEF.MYSQL.ID,
+			password          : DEF.MYSQL.PS,
+			multipleStatements: false
+		});
+		info('MySQL connection established.');
+
+		// (DB) Make client use LonelyDuck DB.
+		var useDBResult = await t_db.useDatabase_p(DEF.MYSQL.DB_NAME, client);
+		if (useDBResult.errorList.length > 0) {
+			error('Failed to make client use DB (%s).', DEF.MYSQL.DB_NAME);
+			error(useDBResult.errorList);
+			process.exit();
+		}
+		info('Client now using Database (%s).', DEF.MYSQL.DB_NAME);
+	}
+});
+process.on('unhandledRejection', function (e) {
+    error('unhandledRejection:', e);
+});
+process.on('warning', function (e) {
+    error('warning:', e);
+});
 
 
 
@@ -289,7 +312,6 @@ app.use('/api'      ,serveStatic(path.join(__dirname, '/../Web/apidoc')));
  * @apiDefine GET_HTML Get (HTML)
  * Normal GET Request APIs for HTML pages.
  */
- 
 /**
  * @api {get} / /
  * @apiDescription Requests main intro page.<br />
@@ -490,77 +512,442 @@ app.get("/product/comres/new", function (req, res) { GetProductComresNewHTML(req
  *			ProductPrice       : 99
  *		}
  * 
- * 
- * @apiExample {curl} Example usage:
- *		GET http://3.23.28.11/product/purchase/1 OR
- *		curl -i http://3.23.28.11/product/purchase/1 OR
- *		<!DOCTYPE html>
-		<html>
-			<head>
-				<meta charset="UTF-8">
-				<title></title>
-				<script
-					src="https://code.jquery.com/jquery-1.12.4.min.js"
-					integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
-					crossorigin="anonymous"></script>
-				<script>
-					$(document).ready(function () {
-						$.ajax({
-							method: 'get',
-							url: 'http://3.23.28.11/product/purchase/1',
-							success: function (data, textStatus, jqXHR) { 
-								$( "#result" ).html( data );
-							},
-							dataType: 'json'
-						});
-					})
-				</script>
-			</head>
-			<body>
-				<p id="result"></p>
-			</body>
-		</html>
- * 
  * @apiName    GetProductPurchaseData
  * @apiGroup   GET_DATA
  * @apiVersion 1.0.0
  */
-app.get("/product/purchase/:PUR_ID", function (req, res) { GetProductPurchaseData(req, res, client); });
+app.get("/purchase/details/:PUR_ID", function (req, res) { GetProductPurchaseData(req, res, client); });
 
 
-app.get("/customer/search/:CUS_ID", function (req, res) { (req, res, client); });
-app.get("/product/search/:PD_ID", function (req, res) { (req, res, client); });
-app.get("/salesperson/search/:SP_ID", function (req, res) { (req, res, client); });
-app.get("/employee/search/:EMP_ID", function (req, res) { (req, res, client); });
-app.get("/comres/search/:COMRES_ID", function (req, res) { (req, res, client); });
-app.get("/case/search/:CAS_ID", function (req, res) { (req, res, client); });
-app.get("/case/comment/search/:CMT_ID", function (req, res) { (req, res, client); });
 
-app.get("/logout", function (req, res) { (req, res, client); });
+
+
+
+
+
+// *********************************
+// GET REQUESTS (DBData)
+// *********************************
+/**
+ * @apiDefine GET_DATA_DB Get (DB Row)
+ * GET requests for simple search queries in the database.
+ */
+/**
+ * @api {get} /customer/search/:CUS_ID /customer/search/:CUS_ID
+ * 
+ * @apiDescription Requests information about a customer.
+ * 
+ * @apiParam {Number} CUS_ID The PK of the customer row.
+ * 
+ * @apiSuccess {Object} Customer            Object containing customer information.
+ * @apiSuccess {Number} Customer.CUS_ID     PK of the customer.
+ * @apiSuccess {String} Customer.name       
+ * @apiSuccess {String} Customer.email     
+ * @apiSuccess {String} Customer.address     
+ * @apiSuccess {Number} Customer.income     Remaining income of the customer (in USD). 
+ * 
+ * @apiExample {curl} Example usage:
+ *		GET http://3.23.28.11/customer/search/1 OR
+ *		curl -i http://3.23.28.11/customer/search/1
+ * 
+ * @apiName    GetCustomerSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/customer/search/:CUS_ID", function (req, res) { GetCustomerSearchData(req, res, client); });
+/**
+ * @api {get} /product/search/:PD_ID /product/search/:PD_ID
+ * 
+ * @apiDescription Requests information about a product.
+ * 
+ * @apiParam {Number} PD_ID The PK of the product row.
+ * 
+ * @apiSuccess {Object} Product             Object containing product information.
+ * @apiSuccess {Number} Product.PD_ID       PK of the product.
+ * @apiSuccess {String} Product.name       
+ * @apiSuccess {String} Product.description     
+ * @apiSuccess {Number} Product.price      
+ * 
+ * @apiName    GetProductSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/product/search/:PD_ID", function (req, res) { GetProductSearchData(req, res, client); });
+/**
+ * @api {get} /salesperson/search/:SP_ID /salesperson/search/:SP_ID
+ * 
+ * @apiDescription Requests information about a salesperson.
+ * 
+ * @apiParam {Number} SP_ID The PK of the salesperson row.
+ * 
+ * @apiSuccess {Object} SalesPerson             Object containing salesperson information.
+ * @apiSuccess {Number} SalesPerson.SP_ID       PK of the salesperson.
+ * @apiSuccess {String} SalesPerson.name       
+ * @apiSuccess {String} SalesPerson.address     
+ * @apiSuccess {String} SalesPerson.email      
+ * @apiSuccess {String} SalesPerson.job      
+ * 
+ * @apiName    GetSalesPersonSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/salesperson/search/:SP_ID", function (req, res) { GetSalesPersonSearchData(req, res, client); });
+/**
+ * @api {get} /employee/search/:EMP_ID /employee/search/:EMP_ID
+ * 
+ * @apiDescription Requests information about an employee.
+ * 
+ * @apiParam {Number} EMP_ID The PK of the employee row.
+ * 
+ * @apiSuccess {Object} Employee             Object containing employee information.
+ * @apiSuccess {Number} Employee.EMP_ID      PK of the employee.
+ * @apiSuccess {String} Employee.name       
+ * @apiSuccess {String} Employee.address     
+ * @apiSuccess {String} Employee.phone      
+ * @apiSuccess {String} Employee.email      
+ * 
+ * @apiName    GetEmployeeSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/employee/search/:EMP_ID", function (req, res) { GetEmployeeSearchData(req, res, client); });
+/**
+ * @api {get} /comres/search/:COMRES_ID /comres/search/:COMRES_ID
+ * 
+ * @apiDescription Requests information about a common resolution.
+ * 
+ * @apiParam {Number} COMRES_ID The PK of the comres row.
+ * 
+ * @apiSuccess {Object} CommonResolution             Object containing common resolution information.
+ * @apiSuccess {Number} CommonResolution.COMRES_ID   PK of the comres row.
+ * @apiSuccess {String} CommonResolution.name        Title of the common resolution.
+ * @apiSuccess {String} CommonResolution.guide       Text guide of the common resolution.
+ * @apiSuccess {Number} CommonResolution.views       Views of the resolution.
+ * @apiSuccess {Number} CommonResolution.PD_ID       Foreign key to the product this resolution is about.
+ * @apiSuccess {Number|null} CommonResolution.CUS_ID Foreign key to the customer who posted the resolution.     
+ * @apiSuccess {Number|null} CommonResolution.EMP_ID Foreign key to the employee who posted the resolution.  
+ * 
+ * @apiName    GetComresSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/comres/search/:COMRES_ID", function (req, res) { GetComresSearchData(req, res, client); });
+/**
+ * @api {get} /case/search/:CAS_ID /case/search/:CAS_ID
+ * 
+ * @apiDescription Requests information about a case.
+ * 
+ * @apiParam {Number} CAS_ID The PK of the case row.
+ * 
+ * @apiSuccess {Object} Case                  Object containing case information.
+ * @apiSuccess {Number} Case.CAS_ID           PK of the case row.
+ * @apiSuccess {String} Case.summary          Summary of the case made by the customer.
+ * @apiSuccess {String} Case.description       
+ * @apiSuccess {String} Case.opentime         Date and time the case was first posted.
+ * @apiSuccess {String|null} Case.closetime   Date and time the case was finally closed.
+ * @apiSuccess {String} Case.status           Status of the case
+ * @apiSuccess {Number} Case.PUR_ID           Foreign key to the purchase of this case.
+ * @apiSuccess {Number|null} Case.EMP_ID      Foreign key to the employee who is assigned to this case.   
+ * @apiSuccess {Number|null} Case.COMRES_ID   Foreign key to the common resolution that can solve this case.
+ * 
+ * @apiName    GetCaseSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/case/search/:CAS_ID", function (req, res) { GetCaseSearchData(req, res, client); });
+/**
+ * @api {get} /case/comment/search/:CMT_ID /case/comment/search/:CMT_ID
+ * 
+ * @apiDescription Requests information about a case comment.
+ * 
+ * @apiParam {Number} CMT_ID The PK of the case comment row.
+ * 
+ * @apiSuccess {Object}      CaseComment                  Object containing case comment information.
+ * @apiSuccess {Number}      CaseComment.CMT_ID           PK of the case comment row.
+ * @apiSuccess {String}      CaseComment.ctime            Date and time the comment was posted.
+ * @apiSuccess {String}      CaseComment.ctext            Text of the comment.
+ * @apiSuccess {Number}      CaseComment.CAS_ID           Foreign key to the case this comment is posted to.
+ * @apiSuccess {Number|null} CaseComment.EMP_ID           Foreign key to the employee who posted this comment.  
+ * @apiSuccess {Number|null} CaseComment.CUS_ID           Foreign key to the customer who posted this comment.  
+ * 
+ * @apiName    GetCaseCommentSearchData
+ * @apiGroup   GET_DATA_DB
+ * @apiVersion 1.0.0
+ */
+app.get("/case/comment/search/:CMT_ID", function (req, res) { GetCaseCommentSearchData(req, res, client); });
+
+
+
+
+
+
+// *********************************
+// GET REQUESTS (Misc)
+// *********************************
+/**
+ * @apiDefine GET_MISC Get (Misc)
+ * GET requests for any other purpose.
+ */
+ /**
+ * @api {get} /myinfo /myinfo
+ * 
+ * @apiDescription Retrieves information about the logged in user.<br />
+ * User must by logged in as either a customer or an employee to perform this request.
+ * 
+ * @apiName    GetMyInfo
+ * @apiGroup   GET_MISC
+ * @apiVersion 1.0.0
+ */
+app.get("/myinfo", function (req, res) { GetMyInfo(req, res, client); });
+/**
+ * @api {get} /logout /logout
+ * 
+ * @apiDescription Performs a customer or employee logout.<br />
+ * The login session cookie will be removed and the login session data will be removed from the server.<br />
+ * The user will automatically be redirected back to the main page.
+ * 
+ * @apiName    GetLogout
+ * @apiGroup   GET_MISC
+ * @apiVersion 1.0.0
+ */
+app.get("/logout", function (req, res) { GetLogout(req, res, client); });
+
+
+
+// *********************************
+// POST REQUESTS (DB Direct Query)
+// *********************************
+/**
+ * @apiDefine POST_DB_DIRECT Post (DB Direct Query)
+ * POST requests for direct database querying.
+ */
+ 
+ /**
+ * @api {post} /db/query /db/query
+ * 
+ * @apiDescription Performs a direct database query against the database.<br />
+ * 
+ * Depending on the type of query (SELECT, INSERT, DELETE, UPDATE, etc), your response
+ * object may or may not have data, but upon query failure, an error message will always
+ * be delivered.<br />
+ * 
+ * You may chain multiple queries using the semicolon (;).<br />
+ * 
+ * If the results are from joining tables with overlapping column names, the results will 
+ * have the format of {table1_fieldA: ..., table2_fieldA: ..., } and so on.
+ * 
+ * @apiParam {String}  querySQL                            SQL query string.
+ * @apiParam {boolean} [keepDuplicateColumnNames = false]  Allow for the query result to 
+ *		not collapse duplicate column names from different tables (in case of joining), 
+ *		and concat the table name and the column name to uniquly identify each row.
+ * 
+ * @apiSuccess {Object}   result         Object containing the rows and fields of the query.
+ * @apiSuccess {Object[]} result.rows    Array of returned row objects.
+ * @apiSuccess {Object}   result.fields  Object containing information about the fields of the query.
+ * 
+ * @apiError   {Object} result         Object containing error message if login failed.
+ * @apiError   {String} result.error   Error message.
+ * 
+ * @apiName    PostDBQuery
+ * @apiGroup   POST_DB_DIRECT
+ * @apiVersion 1.0.0
+ */
+app.post("/db/query", function (req, res) { PostDBQuery(req, res, client); });
+
 
 
 
 // *********************************
 // POST REQUESTS (General)
 // *********************************
+/**
+ * @apiDefine POST_GENERAL Post (General)
+ * POST requests for general purposes.
+ */
+/**
+ * @api {post} /login /login
+ * 
+ * @apiDescription Performs a customer or employee login.<br />
+ * Once a user logs in as either a customer or an employee, a login session cookie
+ * will be saved and session data will be managed by the server until logout or session expire.<br />
+ * The session cookie allows for the user to perform login-specific actions without requiring authentication every time.<br />
+ * Note that after a successful login, it will not automatically redirect tha page.
+ * 
+ * @apiParam {String} loginType     Either "customer" or "employee".
+ * @apiParam {String} loginEmail    Email of the customer or employee.
+ * @apiParam {String} loginPassword Password of the customer or employee.
+ * 
+ * @apiSuccess {Object} result    Empty object if login was successful.
+ * @apiError   {Object} result    Object containing error message if login failed.
+ * @apiError   {String} result.error   Error message.
+ * 
+ * @apiName    PostLogin
+ * @apiGroup   POST_GENERAL
+ * @apiVersion 1.0.0
+ */
+app.post("/login", function (req, res) { PostLogin(req, res, client); });
 
-// A customer buys a product.
-app.post("/product/purchase", function (req, res) { (req, res, client); });
+/**
+ * @api {post} /product/purchase /product/purchase
+ * 
+ * @apiDescription A customer buys a product.<br />
+ * User must be logged in as a customer and have enough remaining income to succesfully 
+ * purchase the product.<br />
+ * Upon successful purchase, a random salesperson will be selected for the person
+ * who sold the item to the customer.
+ * 
+ * @apiParam {Number} productID   The PK of the product the customer is purchasing.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostProductPurchase
+ * @apiGroup   POST_GENERAL
+ * @apiVersion 1.0.0
+ */
+app.post("/product/purchase", function (req, res) { PostProductPurchase(req, res, client); });
 
-// An employee or customer posts a comment about a case.
-app.post("/case/comment/post", function (req, res) { (req, res, client); });
+/**
+ * @api {post} /case/submit /case/submit
+ * 
+ * @apiParam {Number} purchaseID 
+ * @apiParam {String} summary
+ * @apiParam {String} description
+ * 
+ * @apiName    PostCaseSubmit
+ * @apiGroup   POST_GENERAL
+ * @apiVersion 1.0.0
+ */
+app.post("/case/submit", function (req, res) { PostCaseSubmit(req, res, client); });
 
-// An employee or customer posts a common resolution about a product.
-app.post("/product/comres/post", function (req, res) { (req, res, client); });
+/**
+ * @api {post} /case/comment/submit /case/comment/submit
+ * 
+ * @apiDescription A customer or employee posts a comment about a case.<br />
+ * User must be logged in as either a customer or an employee in order to post a case comment.
+ * 
+ * @apiParam {Number} caseID      The PK of the case the comment is about.
+ * @apiParam {String} commentText The content of the comment.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostCaseCommentSubmit
+ * @apiGroup   POST_GENERAL
+ * @apiVersion 1.0.0
+ */
+app.post("/case/comment/submit", function (req, res) { PostCaseCommentSubmit(req, res, client); });
+
+/**
+ * @api {post} /product/comres/submit /product/comres/submit
+ * 
+ * @apiDescription A customer or employee posts a common resolution about a product.<br />
+ * User must be logged in as either a customer or an employee in order to submit a common resolution.
+ * 
+ * @apiParam {Number} productID   The PK of the product the resolution is about.
+ * @apiParam {String} name        The title of the common resolution.
+ * @apiParam {String} guide       The text content of this resolution.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostProductComresSubmit
+ * @apiGroup   POST_GENERAL
+ * @apiVersion 1.0.0
+ */
+app.post("/product/comres/submit", function (req, res) { PostProductComresSubmit(req, res, client); });
+
+
 
 
 // *********************************
 // POST REQUESTS (Search)
 // *********************************
-// An employee searches cases.
-app.post("employee/search/case", function (req, res) { (req, res, client); });
-app.post("employee/search/customer", function (req, res) { (req, res, client); });
-app.post("employee/search/comres", function (req, res) { (req, res, client); });
+/**
+ * @apiDefine POST_SEARCH Post (Search)
+ * POST requests for employee search purposes.
+ */
+/**
+ * @api {post} /employee/search/case /employee/search/case
+ * 
+ * @apiDescription An employee searches for a case.<br />
+ * User must be logged in as an employee in order to perform this request.
+ * 
+ * @apiParam {String} searchType  Either "status" or "timeframe".
+ * @apiParam {String} searchTerm  The search keyword to search for cases based on the given search type.
+ * @apiExample {json} Request Example1
+ * {
+ *	'searchType': 'status',
+ *	'searchTerm': 'SOLVED'
+ * } 
+ *@apiExample {json} Request Example2
+ * {
+ *	'searchType': 'timeframe',
+ *	'searchTerm': '2020-04-22'
+ * }
+ * 
+ * @apiSuccess {Object[]} ResultList  Array of cases matching the search.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostEmployeeSearchCase
+ * @apiGroup   POST_SEARCH
+ * @apiVersion 1.0.0
+ */
+app.post("/employee/search/case", function (req, res) { PostEmployeeSearchCase(req, res, client); });
+/**
+ * @api {post} /employee/search/customer /employee/search/customer
+ * 
+ * @apiDescription An employee searches for a customer.<br />
+ * User must be logged in as an employee in order to perform this request.
+ * 
+ * @apiParam {String} searchType  Either "name" or "email".
+ * @apiParam {String} searchTerm  The search keyword to search for cases based on the given search type.
+ * @apiExample {json} Request Example1
+ * {
+ *	'searchType': 'name',
+ *	'searchTerm': 'John'
+ * } 
+ * @apiExample {json} Request Example2
+ * {
+ *	'searchType': 'email',
+ *	'searchTerm': 'guy@gmail.com'
+ * }
+ * 
+ * @apiSuccess {Object[]} ResultList  Array of customers matching the search.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostEmployeeSearchCustomer
+ * @apiGroup   POST_SEARCH
+ * @apiVersion 1.0.0
+ */
+app.post("/employee/search/customer", function (req, res) { PostEmployeeSearchCustomer(req, res, client); });
+/**
+ * @api {post} /employee/search/comres /employee/search/comres
+ * 
+ * @apiDescription An employee searches for common resolutions by the product.<br />
+ * User must be logged in as an employee in order to perform this request.
+ * 
+ * @apiParam {String} searchType  Either "productID" or "productName".
+ * @apiParam {String} searchTerm  The search keyword to search for cases based on the given search type.
+ * @apiExample {json} Request Example1
+ * {
+ *	'searchType': 'productID',
+ *	'searchTerm': '42'
+ * } 
+ * @apiExample {json} Request Example2
+ * {
+ *	'searchType': 'productName',
+ *	'searchTerm': 'iPhone11'
+ * }
+ * 
+ * @apiSuccess {Object[]} ResultList  Array of common resolutions for the product matching the search.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostEmployeeSearchComres
+ * @apiGroup   POST_SEARCH
+ * @apiVersion 1.0.0
+ */
+app.post("/employee/search/comres", function (req, res) { PostEmployeeSearchComres(req, res, client); });
 
 
 
@@ -568,40 +955,35 @@ app.post("employee/search/comres", function (req, res) { (req, res, client); });
 // *********************************
 // POST REQUESTS (Aggregation)
 // *********************************
-// An employee makes an aggregation query request on the cases.
-app.post("employee/agg/case", function (req, res) { (req, res, client); });
-
-
 /**
- *  {get} /customer/case/create/:PD_ID Requests a customer "Create New Case" template HTML page.
- * 
- * @apiDescription The page will have a form like-structure (label and value), with a “Submit” button at the very button.
- * It should have the following field inputs:
- * - Summary: A basic title describing the issue.
- *   ex) Summary: My router can't connect to 5GHz networks. 
- * - Description: A detailed text providing more insight to the problem/issue thats occurring.
- *   ex) Description: I bought this router because it said it can connect to 5GHz networks and blah... 
- * - Customer: The name from the Customers table.
- *   ex) Customer: John Smith
- * - Product: The name from the Products table.
- *   ex) Product: TP-LINK_N20P Router
- * 
- * - The customer's CUS_ID will be available via cookies, and the product's PD_ID 
- *   will be available via the request params, and you can make subsequent GET requests 
- *   to retrieve information about the customer and the product (and use their names 
- *   to auto-fill in the fields).
- * 
- * @apiName    GetCustomerCaseCreateHTML
- * @apiGroup   Get Requests (HTML)
- * @apiVersion 1.0.0
- * @apiSuccess {String} HTML data of the page.
+ * @apiDefine POST_AGG Post (Aggregation)
+ * POST requests for employee aggregation search purposes.
  */
-// app.get("/customer/case/create/:PD_ID", function (req, res) { GetCustomerCaseCreateHTML(req, res); });
 /**
- *  {get} /customer/case Requests a "View My Case" template HTML page.
- * @apiName    GetCustomerMyOrdersHTML
- * @apiGroup   Get Requests (HTML)
+ * @api {post} /employee/agg/cases /employee/agg/cases
+ * 
+ * @apiDescription An employee searches for the aggregated results of the cases.<br />
+ * User must be logged in as an employee in order to perform this request.<br />
+ * Aggregation results will be returned sorted by largest of whatever the standard is.
+ * 
+ * @apiParam {String} aggType  The type of aggregation to query the cases with.
+ * 
+ * @apiExample {json} Request Example1
+ * { 'aggType': 'product' }
+ * @apiExample {json} Request Example2
+ * { 'aggType': 'closed' }
+ * @apiExample {json} Request Example3
+ * { 'aggType': 'customer' }
+ * @apiExample {json} Request Example4
+ * { 'aggType': 'customer_company' }
+ * 
+ * @apiSuccess {Object[]} ResultList  Array of aggregation result rows sorted by largest.
+ * 
+ * @apiError {String} error   Error message.
+ * 
+ * @apiName    PostEmployeeAggCases
+ * @apiGroup   POST_AGG
  * @apiVersion 1.0.0
- * @apiSuccess {String} HTML data of the page.
  */
-// app.get("/customer/myorders", function (req, res) { GetCustomerMyOrdersHTML(req, res); });
+app.post("/employee/agg/cases", function (req, res) { PostEmployeeAggCases(req, res, client); });
+

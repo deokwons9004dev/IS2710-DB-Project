@@ -112,7 +112,7 @@ GUIDE: https://docs.aws.amazon.com/cloud9/latest/user-guide/app-preview.html#app
 
 << AWS Network Access Control List (ACL) >>
 GUIDE: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
-
+        
 
 << Aggregate queries for "Case closed by employees (ordered by largest)" >>
 - An employee closes a case.
@@ -125,3 +125,29 @@ SELECT
 https://github.com/jodacame/apidocjs-template-dark-Slate-Inspiration-
 https://github.com/ahmed-dinar/apidoc-template
 https://github.com/worktile/apidoc-template
+
+
+<< Login Session Structure >>
+req.session = {
+        loginPK: The PK of either the customer or the employee.
+        loginType: Either 'customer' or 'employee'.
+}
+
+
+
+
+<< DB Alterations >>
+
+> ALTER TABLE Customers ADD company varchar(500);
+
+> ALTER TABLE Customers ADD INDEX CUS_IDX (email);
+> ALTER TABLE Customers DROP INDEX CUS_IDX;
+
+ALTER TABLE Customers ADD INDEX CUS_IDX (name);
+ALTER TABLE Products ADD INDEX PD_IDX (name);
+ALTER TABLE SalesPersons ADD INDEX SP_IDX (name);
+ALTER TABLE Employee ADD INDEX EMP_IDX (name);
+ALTER TABLE Purchases ADD INDEX PUR_IDX (purchase_date);
+ALTER TABLE CommonResolutions ADD INDEX COMRES_IDX (name);
+ALTER TABLE Cases ADD INDEX CAS_IDX (status);
+ALTER TABLE CaseComments ADD INDEX CASCMT_IDX (ctime);
