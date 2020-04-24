@@ -238,14 +238,14 @@ var server = http.createServer(app).listen(app.get('port'), async function () {
 });
 
 /* Init Express Middleware */
-// var ddos = new antiddos({
-// 	maxcount    : 100,
-// 	limit       : 80,
-// 	burst       : 40,
-// 	maxexpiry   : 20,
-// 	errormessage: 'Timeout penalty for attempted dos attack.'
-// });
-// app.use(ddos.express);                                // DDOS protection middleware.
+ var ddos = new antiddos({
+ 	maxcount    : 100,
+ 	limit       : 80,
+ 	burst       : 40,
+ 	maxexpiry   : 20,
+ 	errormessage: 'Timeout penalty for attempted dos attack.'
+ });
+ app.use(ddos.express);                                // DDOS protection middleware.
 
 app.use(bodyParser());                                // POST body parser middleware.
 app.use(cookieParser(DEF.COOKIE.signKeys));           // Cookie parser middleware.
