@@ -54,6 +54,7 @@ You can download the zip file of this repository, and run the server with NodeJS
 
 ```bash
 $ cd Server
+$ npm install
 $ node main.js
 ```
 
