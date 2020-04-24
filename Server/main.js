@@ -209,14 +209,21 @@ var server = http.createServer(app).listen(app.get('port'), async function () {
 	});
 	SVM.setDatabase(client);
 
-	// (DB) Apply latest SQL file to MySQL.
-	var applySQLResult = await t_db.applySQLFile_p(DEF.MYSQL.ID, DEF.MYSQL.PS, DEF.PATH.DB.SQL);
-	if (applySQLResult.errorList.length > 0) {
-		error('Failed to apply SQL file to MySQL.');
-		error(applySQLResult.errorList);
-		process.exit();
-	}
-	info('Applied latest SQL file to MySQL.');
+    if (process.argv.indexOf('--skip-sql') < 0) {
+        // (DB) Apply latest SQL file to MySQL.
+        var applySQLResult = await t_db.applySQLFile_p(DEF.MYSQL.ID, DEF.MYSQL.PS, DEF.PATH.DB.SQL);
+        if (applySQLResult.errorList.length > 0) {
+            error('Failed to apply SQL file to MySQL.');
+            error(applySQLResult.errorList);
+            process.exit();
+        }
+        info('Applied latest SQL file to MySQL.');
+    }
+    else {
+        warn('Skipping applying the database SQL file to MySQL.');
+        warn('Only use this if you already have the IS2710DB database installed previously.');
+    }
+	
 
 	// (DB) Make client use LonelyDuck DB.
 	var useDBResult = await t_db.useDatabase_p(DEF.MYSQL.DB_NAME, client);
