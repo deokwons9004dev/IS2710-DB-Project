@@ -252,7 +252,8 @@ app.use(function ipwareMiddleware (req, res, next) {
 
 app.use(session({
 	store: new fileStore({
-		path: '/home/ubuntu/environment/IS2710Sessions'
+		path: '~/.IS2710Sessions'
+//		path: '/home/ubuntu/environment/IS2710Sessions'
 	}),
 	secret: 'My Session Secret String',
 	saveUninitialized: false,
