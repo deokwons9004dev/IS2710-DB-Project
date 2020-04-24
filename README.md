@@ -49,6 +49,22 @@ Here are the steps I took to disable it (so we can re-enable when needed).
     $ sudo service mysql restart
     ```
 
+### Database
+You can check the SQL file we used for the project here:
+
+```
+Server/Modules/Database/database.sql
+```
+
+Other database query testing SQL files and query related JS files are located here:
+
+```
+Documents/Aggregation.sql
+Documents/Operations.sql
+Server/Modules/Application/QuerySQL.js
+Server/Modules/Application/DatabaseTools.js
+```
+
 ### Testing
 You can download the zip file of this repository, and run the server with NodeJS.
 
@@ -62,4 +78,9 @@ When testing locally, make sure to have both NodeJS and MySQL installed.
 
 ### More Information
 We have documented a lot of our internal implementation details in a final report, 
-which you can find under the Documents folder.
+which you can find here:
+
+```
+Documents/Final_Report_2710.pdf
+```
+
