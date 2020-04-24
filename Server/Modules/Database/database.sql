@@ -12,7 +12,7 @@ CREATE TABLE Customers (
 	pstext  varchar(500) NOT NULL,
 	address varchar(500) NOT NULL,
 	income  int          NOT NULL,
-	company varchar(500)
+	company varchar(500),
 	PRIMARY KEY (CUS_ID)
 );
 
