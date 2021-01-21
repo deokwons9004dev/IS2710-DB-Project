@@ -43,7 +43,7 @@
 		"serve-favicon": "^2.4.2",
 		"serve-static": "*",
 		"session-file-store": "*",
-		"socket.io": "1.x",
+		"socket.io": "2.x",
 		"socket.io-client": "1.x",
 		"socket.io-stream": "0.x",
 		"superagent": "^5.1.0",
