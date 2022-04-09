@@ -28,7 +28,7 @@
 		"ip-to-int": "^0.3.1",
 		"ipware": "^2.0.0",
 		"is-valid-path": "^0.1.1",
-		"moment": "^2.18.1",
+		"moment": "^2.29.2",
 		"multer": "*",
 		"mysql": "2.x",
 		"network": "^0.4.1",
